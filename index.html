@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1">
+  <!-- On production systems a Content-Security-Policy and referrer meta-tag should be added, see below.
+	The CSP should be modified with adding specific sources that should be allowed, f.e. connect-src 'self' webanalysis.example.com geospatialdata.example.com; -->
+  <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src * data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self'; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self';">
+	<meta name="referrer" content="same-origin"> -->
+  <title>Origo exempel</title>
+  <link href="css/style.css" rel="stylesheet">
+  <link rel="shortcut icon" href="img/png/logo.png">
+</head>
+
+<body>
+  <div id="app-wrapper">
+  </div>
+  <script src="js/origo.js"></script>
+  <script src="plugins/globe/globe.js"></script>
+  <script type="text/javascript">
+    //Init origo
+    var origo = Origo('index.json');
+    origo.on('load', function (viewer) {
+      var globe = Globe({
+        "showGlobe": true,
+        "globeOnStart": true,
+        "settings": {
+          "depthTestAgainstTerrain": false,
+          "enableAtmosphere": true,
+          "enableGroundAtmosphere": true,
+          "enableFog": true,
+          "enableLighting": true,
+          "enableShadows": true,
+          "skyBox": {
+            "url": "http://localhost:9966/plugin/globe/cesiumassets/Assets/Textures/SkyBox/",
+            "images": {
+              "pX": "tycho2t3_80_px.jpg",
+              "nX": "tycho2t3_80_mx.jpg",
+              "pY": "tycho2t3_80_py.jpg",
+              "nY": "tycho2t3_80_my.jpg",
+              "pZ": "tycho2t3_80_pz.jpg",
+              "nZ": "tycho2t3_80_mz.jpg"
+            }
+          }
+        },
+        "cesiumIontoken": "",
+        "cesium3dTiles": [
+          {
+            "url": "OSM-Buildings",
+            "maximumScreenSpaceError": 2,
+            "outline": true,
+            "shadows": true,
+            "filter": "${feature['elementId']} !== 251329024 && ${feature['elementId']} !== 425027205 && ${feature['elementId']} !== 425002757",
+            "style": [
+              [
+                "${feature['building']} === 'civic' || ${feature['building']} === 'construction' || ${feature['building']} === 'church'",
+                "color('#ed6258', 1)"
+              ],
+              [
+                "${feature['building']} === 'commercial' || ${feature['building']} === 'retail' || ${feature['building']} === 'office'",
+                "color('#af8b74', 1)"
+              ],
+              [
+                "${feature['building']} === 'apartments' || ${feature['building']} === 'residential' || ${feature['building']} === 'house' || ${feature['building']} === 'yes' || ${feature['building']} === 'roof'",
+                "color('#c98754', 1)"
+              ],
+              [
+                "${feature['building']} === 'warehouse' || ${feature['building']} === 'manufacture' || ${feature['building']} === 'industrial'",
+                "color('#919494', 1)"
+              ],
+              [
+                "${feature['building']} === 'school' || ${feature['amenity']} === 'university' || ${feature['building']} === 'kindergarten'",
+                "color('#ef7f77', 1)"
+              ],
+              [
+                "${feature['building']} === 'parking' || ${feature['amenity']} === 'parking' || ${feature['building']} === 'garages' || ${feature['building']} === 'garage'",
+                "color('#af8b74', 1)"
+              ],
+              [
+                "${feature['building']} === 'farm_auxiliary' || ${feature['building']} === 'detached'",
+                "color('#a69774', 1)"
+              ],
+              [
+                true,
+                "color('#ef7f77', 1)"
+              ]
+            ]
+          }
+        ],
+        "cesiumTerrainProvider": "",
+        "cesiumIonassetIdTerrain": ""
+      }, viewer);
+      viewer.addComponent(globe);
+    });
+  </script>
+</body>
+
+</html>
