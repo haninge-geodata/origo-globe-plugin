@@ -19,7 +19,7 @@ module.exports = merge(common, {
   },
   output: {
     path: `${__dirname}/../build`,
-    filename: 'globes.min.js',
+    filename: 'globe.min.js',
     libraryTarget: 'var',
     libraryExport: 'default',
     library: 'Globe'
@@ -65,7 +65,7 @@ module.exports = merge(common, {
       ]
     }),
     new webpack.optimize.LimitChunkCountPlugin({
-      maxChunks: 1,
-    }),
+      maxChunks: 1
+    })
   ]
 });

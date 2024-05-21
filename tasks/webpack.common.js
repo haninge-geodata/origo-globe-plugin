@@ -16,7 +16,7 @@ module.exports = {
     extensions: ['.*', '.js', '.scss'],
     fallback: { https: false, zlib: false, http: false, url: false },
     alias: {
-      cesium: path.resolve('node_modules/cesium/Source/Cesium.js')
+      cesium: path.resolve('node_modules/cesium/Source/Cesium')
     }
   },
   plugins: [

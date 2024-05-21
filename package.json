@@ -5,7 +5,7 @@
   "main": "globe.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/haninge-geodata/origo-globe-plugin.git"
+    "url": "https://github.com/haninge-geodata/origo-globe-plugin.git"
   },
   "author": "",
   "license": "MIT",
@@ -14,11 +14,11 @@
   },
   "homepage": "https://github.com/haninge-geodata/origo-globe-plugin#readme",
   "scripts": {
-    "start": "npm run watch-js",
-    "watch-js": "webpack-cli serve --config ./tasks/webpack.dev.js --mode development",
-    "build": "webpack --config ./tasks/webpack.prod.js && npm run build-sass",
-    "build:dev": "webpack --config ./tasks/webpack.dev.js --mode development && npm run prebuild-sass",
+    "start": "npm run prebuild-sass | run-p watch-js watch-sass",
+    "watch-js": "webpack-dev-server --config ./tasks/webpack.dev.js --mode development",
+    "watch-sass": "node-sass -w --include-path scss scss/globe.scss ../origo/plugins/globe/globe.css",
     "prebuild-sass": "node-sass --include-path scss scss/globe.scss ../origo/plugins/globe/globe.css",
+    "build": "webpack --config ./tasks/webpack.prod.js && npm run build-sass",
     "build-sass": "node-sass --include-path scss scss/globe.scss build/globe.css"
   },
   "dependencies": {
@@ -37,7 +37,8 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
     "mini-css-extract-plugin": "^2.6.1",
-    "node-sass": "^8.0.0",
+    "node-sass": "^9.0.0",
+    "npm-run-all": "^4.1.5",
     "sass-loader": "^13.3.2",
     "style-loader": "^3.3.3",
     "webpack": "^5.74.0",
