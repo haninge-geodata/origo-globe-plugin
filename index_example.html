@@ -11,6 +11,7 @@
 	<meta name="referrer" content="same-origin"> -->
   <title>Origo exempel</title>
   <link href="css/style.css" rel="stylesheet">
+  <link href="plugins/globe/globe.css" rel="stylesheet">
   <link rel="shortcut icon" href="img/png/logo.png">
 </head>
 
@@ -24,28 +25,29 @@
     var origo = Origo('index.json');
     origo.on('load', function (viewer) {
       var globe = Globe({
-        "showGlobe": true,
-        "globeOnStart": true,
-        "settings": {
-          "depthTestAgainstTerrain": false,
-          "enableAtmosphere": true,
-          "enableGroundAtmosphere": true,
-          "enableFog": true,
-          "enableLighting": true,
-          "enableShadows": true,
-          "skyBox": {
-            "url": "http://localhost:9966/plugin/globe/cesiumassets/Assets/Textures/SkyBox/",
-            "images": {
-              "pX": "tycho2t3_80_px.jpg",
-              "nX": "tycho2t3_80_mx.jpg",
-              "pY": "tycho2t3_80_py.jpg",
-              "nY": "tycho2t3_80_my.jpg",
-              "pZ": "tycho2t3_80_pz.jpg",
-              "nZ": "tycho2t3_80_mz.jpg"
+        showGlobe: true,
+        globeOnStart: true,
+        deactivateControls: ["measure"],
+        settings: {
+          depthTestAgainstTerrain: true,
+          enableAtmosphere: true,
+          enableGroundAtmosphere: true,
+          enableFog: true,
+          enableLighting: true,
+          enableShadows: true,
+          skyBox: {
+            url: "plugins/globe/cesiumassets/Assets/Textures/SkyBox/",
+            images: {
+              pX: "tycho2t3_80_px.jpg",
+              nX: "tycho2t3_80_mx.jpg",
+              pY: "tycho2t3_80_py.jpg",
+              nY: "tycho2t3_80_my.jpg",
+              pZ: "tycho2t3_80_pz.jpg",
+              nZ: "tycho2t3_80_mz.jpg"
             }
           }
         },
-        "cesiumIontoken": "",
+        // "cesiumIontoken": "Needed if using OSM-Buildings or other Cesium Ion assets",
         "cesium3dTiles": [
           {
             "url": "OSM-Buildings",
@@ -87,14 +89,38 @@
                 "color('#ef7f77', 1)"
               ]
             ]
+          },
+          {
+            // "url": 123456,
+            "maximumScreenSpaceError": 0.1,
+            "outline": true,
+            "shadows": true
+          },
+          {
+            "url": "", // tileset.json
+            "maximumScreenSpaceError": 16,
+            "outline": true,
+            "shadows": true
+          }
+        ],
+        "gltf": [
+          {
+            "url": "", // .gltf
+            "lat": 18.13764,
+            "lng": 59.16456,
+            "height": 100,
+            // This overrides height if not set to NONE, se options @ https://cesium.com/learn/cesiumjs/ref-doc/global.html?classFilter=Height#HeightReference
+            "heightReference": "CLAMP_TO_TERRAIN",
+            "animation": false
           }
         ],
         "cesiumTerrainProvider": "",
-        "cesiumIonassetIdTerrain": ""
-      }, viewer);
+        "cesiumIonassetIdTerrain": 1
+      });
       viewer.addComponent(globe);
     });
   </script>
+
 </body>
 
 </html>
