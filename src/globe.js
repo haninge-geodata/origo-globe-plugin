@@ -7,7 +7,11 @@
 
 import Origo from 'Origo';
 import flatpickr from 'flatpickr';
+import * as confirmDatePlugin from 'flatpickr/dist/plugins/confirmDate/confirmDate';
 import * as Cesium from 'cesium';
+import proj4 from 'proj4';
+import Feature from 'ol/Feature.js';
+import Point from 'ol/geom/Point.js';
 import {
   Ion,
   IonResource,
@@ -18,8 +22,8 @@ import {
   ScreenSpaceEventType,
   Color,
   SkyBox,
-  ShadowMode,
-  JulianDate
+  JulianDate,
+  ClockViewModel
 } from 'cesium';
 // import { ThreedTile } from './layer/layerhelper';
 import isGlobeActive from './isglobeactive';
@@ -117,7 +121,7 @@ const Globe = function Globe(options = {}) {
     timeSetter: () => {
       flatpickrEl = Origo.ui.Element({
         tagName: 'div',
-        cls: 'flex column z-index-ontop-top-times20'
+        cls: 'flatpickrEl z-index-ontop-top-times20'
       });
 
       htmlString = flatpickrEl.render();
@@ -128,7 +132,14 @@ const Globe = function Globe(options = {}) {
         enableTime: true,
         defaultDate: new Date(),
         enableSeconds: false,
-        disableMobile: true
+        disableMobile: false,
+        plugins: [new confirmDatePlugin({
+          confirmIcon: "<i class='fa fa-check'></i>",
+          confirmText: 'OK',
+          showAlways: true,
+          theme: 'light'
+        }
+        )]
       });
     },
     // Origo style on picked feature
@@ -171,6 +182,21 @@ const Globe = function Globe(options = {}) {
         duration,
         orientation
       });
+    },
+    addSvgIcons: () => {
+      const svgIcons = `
+      <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol viewBox="0 0 24 24" id="ic_cube_24px">
+          <path d="M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5M12,4.15L6.04,7.5L12,10.85L17.96,7.5L12,4.15Z" />
+        </symbol>
+        <symbol viewBox="0 0 24 24" id="ic_clock-time-four_24px">
+          <path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12S17.5 2 12 2M16.3 15.2L11 12.3V7H12.5V11.4L17 13.9L16.3 15.2Z" />
+        </symbol>
+      </svg>
+      `;
+      const div = document.createElement('div');
+      div.innerHTML = svgIcons;
+      document.body.insertBefore(div, document.body.childNodes[0]);
     }
   };
 
@@ -199,250 +225,244 @@ const Globe = function Globe(options = {}) {
 
       coordinate = [lon, lat];
 
-    if (Cesium.defined(feature) && feature instanceof Cesium.Cesium3DTileFeature) {
-      console.warn('Infowindow för 3D objekt är inte klart för användning')
-      // const layerName = feature.primitive.featureIdLabel;
+      if (Cesium.defined(feature) && feature instanceof Cesium.Cesium3DTileFeature) {
+        console.warn('Infowindow för 3D objekt är inte klart för användning')
 
-      // console.log(feature.primitive);
+        // const layerName = feature.primitive.featureIdLabel;
 
-      // if (viewer.getProjectionCode() === 'EPSG:3857') {
-      //   coordinate = proj4('EPSG:4326', 'EPSG:3857', [lon, lat]);
-      // }
+        // if (viewer.getProjectionCode() === 'EPSG:3857') {
+        //   coordinate = proj4('EPSG:4326', 'EPSG:3857', [lon, lat]);
+        // }
 
-      // const propertyIds = feature.getPropertyIds();
-      // console.log('propertyIds ', propertyIds);
-      // const contentItems = [];
+        // const propertyIds = feature.getPropertyIds();
+        // console.log('propertyIds ', propertyIds);
+        // const contentItems = [];
 
-      // propertyIds.forEach((propertyId) => {
-      //   const propId = feature.getProperty(propertyId);
-      //   title = feature.getProperty('name');
-      //   if (title === undefined) {
-      //     title = `Byggnadsid: ${feature.getProperty('elementId')}`;
-      //   }
-      //   if (propId !== undefined) {
-      //     const content = `<ul><li><b>${propertyId}:</b> ${feature.getProperty(
-      //       propertyId
-      //     )}</li>`;
-      //     contentItems.push(content);
-      //   }
-      // });
-      // obj.title = `${title}`;
-      // obj.layerName = layerName;
-      // // obj.name = layerName;
-      // console.log('contentItems ', contentItems);
-      // // obj.content = `${contentItems.join(' ')}</ul>`;
-      // // skapar en ny olFeature här baserat på 2D-koordinaterna att skicka in till featureInfo
-      // // pga doRender() vill ha en sån. Utan Feature renderas popup på fel ställe,
-      // // även om man skickar med koordinater till featureInfo.render()
-      // obj.feature = new Feature({
-      //   geometry: new Point(coordinate),
-      //   title: `${title}`,
-      //   name: 'DummyPoint',
-      //   content: `${contentItems.join(' ')}</ul>`
-      // });
-      // featureInfo.showFeatureInfo(obj);
-    } else if (!Cesium.defined(feature)) {
-      featureInfo.clear();
-    } else if (feature.primitive.olFeature) {
-      coordinate = feature.primitive.olFeature.getGeometry().getCoordinates();
-      const primitive = feature.primitive.olFeature;
-      const layer = feature.primitive.olLayer;
-      obj.layer = layer;
-      obj.layerName = feature.primitive.olLayer.get('title');
-      obj.feature = primitive;
-      featureInfo.showFeatureInfo(obj);
-      // featureInfo.render([obj], 'overlay', coordinate);
+        // propertyIds.forEach((propertyId) => {
+        //   const propId = feature.getProperty(propertyId);
+        //   title = feature.getProperty('name');
+        //   if (title === undefined) {
+        //     title = `Byggnadsid: ${feature.getProperty('elementId')}`;
+        //   }
+        //   if (propId !== undefined) {
+        //     const content = `<ul><li><b>${propertyId}:</b> ${feature.getProperty(
+        //       propertyId
+        //     )}</li>`;
+        //     contentItems.push(content);
+        //   }
+        // });
+        // obj.title = `${title}`;
+        // obj.layerName = layerName;
+        // // obj.name = layerName;
+        // console.log('contentItems ', contentItems);
+        // // obj.content = `${contentItems.join(' ')}</ul>`;
+        // // skapar en ny olFeature här baserat på 2D-koordinaterna att skicka in till featureInfo
+        // // pga doRender() vill ha en sån. Utan Feature renderas popup på fel ställe,
+        // // även om man skickar med koordinater till featureInfo.render()
+        // obj.layer = new Feature({
+        //   geometry: new Point(coordinate),
+        //   title: `${title}`,
+        //   name: 'DummyPoint',
+        //   content: `${contentItems.join(' ')}</ul>`
+        // });
+        // featureInfo.showFeatureInfo(obj);
+      } else if (!Cesium.defined(feature)) {
+        featureInfo.clear();
+      } else if (feature.primitive.olFeature) {
+        coordinate = feature.primitive.olFeature.getGeometry().getCoordinates();
+        const primitive = feature.primitive.olFeature;
+        const layer = feature.primitive.olLayer;
+        obj.layer = layer;
+        obj.layerName = feature.primitive.olLayer.get('title');
+        obj.feature = primitive;
+        featureInfo.showFeatureInfo(obj);
+        // featureInfo.render([obj], 'overlay', coordinate);
+      }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+  };
+
+  // 3D assets
+  const assets = {
+    // Terrain providers
+    terrainProviders: async () => {
+      if (cesiumTerrainProvider) {
+        terrain = await CesiumTerrainProvider.fromUrl(cesiumTerrainProvider, {
+          requestVertexNormals: true
+          // Add as option for 3D Tiles request
+          // requestWaterMask: true,
+        });
+        scene.terrainProvider = terrain;
+      } else if (cesiumIonassetIdTerrain && cesiumIontoken) {
+        terrain = await CesiumTerrainProvider.fromUrl(IonResource.fromAssetId(cesiumIonassetIdTerrain), {
+          requestVertexNormals: true
+          // Add as option for 3D Tiles request
+          // requestWaterMask: true,
+        });
+        scene.terrainProvider = terrain;
+      } else if (cesiumIontoken) {
+        // Cesium world terrain is used as default if token is present
+        terrain = await createWorldTerrainAsync({
+          requestVertexNormals: true
+        });
+        scene.terrainProvider = terrain;
+      }
+    },
+    // Cesium 3D Tile providers
+    cesium3DtilesProviders: () => {
+      if (cesium3dTiles) {
+        cesium3dTiles.forEach((tilesAsset) => {
+          const url = tilesAsset.url;
+          const showOutline = tilesAsset.showOutline;
+          const outlineColor = tilesAsset.outlineColor;
+          const conditions = tilesAsset.style || undefined;
+          const show = tilesAsset.filter || 'undefined';
+          const maximumScreenSpaceError = tilesAsset.maximumScreenSpaceError;
+          add3DTiles(scene, url, showOutline, outlineColor, conditions, show, maximumScreenSpaceError, cesiumIontoken);
+        });
+      }
+    },
+    // GLTF providers
+    gltfProviders: () => {
+      if (gltf) {
+        gltf.forEach((gltfAsset) => {
+          const url = gltfAsset.url;
+          const lat = gltfAsset.lat;
+          const lng = gltfAsset.lng;
+          const height = gltfAsset.height;
+          const heightReference = gltfAsset.heightReference;
+          const animation = gltfAsset.animation;
+          addGltf(scene, url, lat, lng, height, heightReference, animation);
+        });
+      }
     }
-  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-};
+  };
 
-// 3D assets
-const assets = {
-  // Terrain providers
-  terrainProviders: async () => {
-    if (cesiumTerrainProvider) {
-      terrain = await CesiumTerrainProvider.fromUrl(cesiumTerrainProvider, {
-        requestVertexNormals: true
-        // Add as option for 3D Tiles request
-        // requestWaterMask: true,
-      });
-      scene.terrainProvider = terrain;
-    } else if (cesiumIonassetIdTerrain && cesiumIontoken) {
-      terrain = await CesiumTerrainProvider.fromUrl(IonResource.fromAssetId(cesiumIonassetIdTerrain), {
-        requestVertexNormals: true
-        // Add as option for 3D Tiles request
-        // requestWaterMask: true,
-      });
-      scene.terrainProvider = terrain;
-    } else if (cesiumIontoken) {
-      // Cesium world terrain is used as default if token is present
-      terrain = await createWorldTerrainAsync({
-        requestVertexNormals: true
-      });
-      scene.terrainProvider = terrain;
+  const cesiumSettings = {
+    // Configure options for Scene
+    scene: () => {
+      settings.enableAtmosphere = settings.enableAtmosphere ? scene.skyAtmosphere.show = true : scene.skyAtmosphere.show = false;
+      settings.enableFog = settings.enableFog ? scene.fog.enabled = true : scene.fog.enabled = false;
+      settings.enableShadows = settings.enableShadows ? scene.shadowMap.enabled = true : scene.shadowMap.enabled = false;
+    },
+    // Configure options for Globe
+    globe: () => {
+      const globe = scene.globe;
+      settings.depthTestAgainstTerrain = settings.depthTestAgainstTerrain ? globe.depthTestAgainstTerrain = true : globe.depthTestAgainstTerrain = false;
+      settings.enableGroundAtmosphere = settings.enableGroundAtmosphere ? globe.showGroundAtmosphere = true : globe.showGroundAtmosphere = false;
+      if (settings.skyBox) {
+        const url = settings.skyBox.url;
+        scene.skyBox = new SkyBox({
+          sources: {
+            positiveX: `${url}${settings.skyBox.images.pX}`,
+            negativeX: `${url}${settings.skyBox.images.nX}`,
+            positiveY: `${url}${settings.skyBox.images.pY}`,
+            negativeY: `${url}${settings.skyBox.images.nY}`,
+            positiveZ: `${url}${settings.skyBox.images.pZ}`,
+            negativeZ: `${url}${settings.skyBox.images.nZ}`
+          }
+        });
+      }
+      settings.skyBox = false;
     }
-  },
-  // Cesium 3D Tile providers
-  cesium3DtilesProviders: () => {
-    if (cesium3dTiles) {
-      cesium3dTiles.forEach((tilesAsset) => {
-        const url = tilesAsset.url;
-        const outline = tilesAsset.outline;
-        const shadows = tilesAsset.shadows;
-        const conditions = tilesAsset.style || undefined;
-        const show = tilesAsset.filter || 'undefined';
-        const maximumScreenSpaceError = tilesAsset.maximumScreenSpaceError;
-        add3DTiles(scene, url, outline, shadows, conditions, show, maximumScreenSpaceError, cesiumIontoken);
-      });
-    }
-  },
-  // GLTF providers
-  gltfProviders: () => {
-    if (gltf) {
-      gltf.forEach((gltfAsset) => {
-        const url = gltfAsset.url;
-        const lat = gltfAsset.lat;
-        const lng = gltfAsset.lng;
-        const height = gltfAsset.height;
-        const heightReference = gltfAsset.heightReference;
-        const animation = gltfAsset.animation;
-        addGltf(scene, url, lat, lng, height, heightReference, animation);
-      });
-    }
-  }
-};
+  };
 
-const cesiumSettings = {
-  // Configure options for Scene
-  scene: () => {
-    settings.enableAtmosphere = settings.enableAtmosphere ? scene.skyAtmosphere.show = true : scene.skyAtmosphere.show = false;
-    settings.enableFog = settings.enableFog ? scene.fog.enabled = true : scene.fog.enabled = false;
-    settings.enableShadows = settings.enableShadows ? scene.shadows = true : scene.shadows = false;
-  },
-  // Configure options for Globe
-  globe: () => {
-    const globe = scene.globe;
-    settings.depthTestAgainstTerrain = settings.depthTestAgainstTerrain ? globe.depthTestAgainstTerrain = true : globe.depthTestAgainstTerrain = false;
-    settings.enableGroundAtmosphere = settings.enableGroundAtmosphere ? globe.showGroundAtmosphere = true : globe.showGroundAtmosphere = false;
-    settings.enableLighting = settings.enableLighting ? globe.enableLighting = true : globe.enableLighting = false;
-    if (settings.skyBox) {
-      const url = settings.skyBox.url;
-      scene.skyBox = new SkyBox({
-        sources: {
-          positiveX: `${url}${settings.skyBox.images.pX}`,
-          negativeX: `${url}${settings.skyBox.images.nX}`,
-          positiveY: `${url}${settings.skyBox.images.pY}`,
-          negativeY: `${url}${settings.skyBox.images.nY}`,
-          positiveZ: `${url}${settings.skyBox.images.pZ}`,
-          negativeZ: `${url}${settings.skyBox.images.nZ}`
+  return Origo.ui.Component({
+    name: 'globe',
+    onAdd(evt) {
+      viewer = evt.target;
+      if (!target) target = `${viewer.getMain().getNavigation().getId()}`;
+      oGlobeTarget = viewer.getId();
+      map = viewer.getMap();
+      featureInfo = viewer.getControlByName('featureInfo');
+      // Init flatpickr to set the datetime in oGlobe.time
+      helpers.timeSetter();
+      // Init OLCesium
+      oGlobe = new window.OLCesium({
+        map,
+        target: oGlobeTarget,
+        scene3DOnlyy: true,
+        terrainExaggeration: 1,
+        time() {
+          return JulianDate.fromDate(new Date(fp.element.value));
         }
       });
+      // OLCesium needs to be global
+      window.oGlobe = oGlobe;
+      // Gets Scene
+      scene = oGlobe.getCesiumScene();
+      // setResolutionScale as configuration option
+      oGlobe.setResolutionScale(resolutionScale);
+      // Call the helpers
+      helpers.addSvgIcons();
+      helpers.showGlobeOption();
+      helpers.activeGlobeOnStart();
+      helpers.cesiumCredits();
+      helpers.setActiveControls(oGlobe, viewer);
+      helpers.addLayertypes();
+      helpers.pickedFeatureStyle();
+      // Call the settings
+      cesiumSettings.globe();
+      cesiumSettings.scene();
+      // Call the assets
+      assets.terrainProviders();
+      assets.cesium3DtilesProviders();
+      assets.gltfProviders();
+
+      get3DFeatureInfo();
+
+      this.on('render', this.onRender);
+      this.addComponents(buttons);
+      this.render();
+    },
+    onInit() {
+      globeEl = Origo.ui.Element({
+        tagName: 'div',
+        cls: 'flex column z-index-ontop-top-times20'
+      });
+      globeButton = Origo.ui.Button({
+        cls: 'o-measure padding-small margin-bottom-smaller icon-smaller round light box-shadow',
+        click() {
+          // Toggles globe on/off
+          toggleGlobe();
+          helpers.setActiveControls(oGlobe, viewer);
+        },
+        icon: '#ic_cube_24px',
+        tooltipText: 'Globe',
+        tooltipPlacement: 'east'
+      });
+      buttons.push(globeButton);
+
+      flatpickrButton = Origo.ui.Button({
+        cls: 'padding-small margin-bottom-smaller icon-smaller round light box-shadow',
+        click() {
+          // Opens datetime picker, fp.close() in picker itself
+          fp.open();
+        },
+        icon: '#ic_clock-time-four_24px',
+        tooltipText: 'Datetime picker',
+        tooltipPlacement: 'east'
+      });
+      buttons.push(flatpickrButton);
+    },
+    render() {
+      htmlString = `${globeEl.render()}`;
+      el = Origo.ui.dom.html(htmlString);
+      document.getElementById(target).appendChild(el);
+
+      htmlString = globeButton.render();
+      el = Origo.ui.dom.html(htmlString);
+      document.getElementById(globeEl.getId()).appendChild(el);
+
+      htmlString = flatpickrButton.render();
+      el = Origo.ui.dom.html(htmlString);
+      document.getElementById(globeEl.getId()).appendChild(el);
+
+      this.dispatch('render');
+    },
+    isGlobeActive() {
+      return isGlobeActive(oGlobe);
     }
-    settings.skyBox = false;
-  }
-};
-
-return Origo.ui.Component({
-  name: 'globe',
-  onAdd(evt) {
-    viewer = evt.target;
-    if (!target) target = `${viewer.getMain().getNavigation().getId()}`;
-    oGlobeTarget = viewer.getId();
-    map = viewer.getMap();
-    featureInfo = viewer.getControlByName('featureInfo');
-    // Init flatpickr to set the datetime in oGlobe.time
-    helpers.timeSetter();
-    // Init OLCesium
-    oGlobe = new window.OLCesium({
-      map,
-      target: oGlobeTarget,
-      shadows: ShadowMode.ENABLED, // SHADOWS PROBLEM Is this working?
-      scene3DOnlyy: true,
-      terrainExaggeration: 1,
-      time() {
-        return JulianDate.fromDate(new Date(fp.element.value));
-      }
-    });
-    // OLCesium needs to be global
-    window.oGlobe = oGlobe;
-    // Gets Scene
-    scene = oGlobe.getCesiumScene();
-    // setResolutionScale as configuration option
-    oGlobe.setResolutionScale(resolutionScale);
-
-    helpers.showGlobeOption();
-    helpers.activeGlobeOnStart();
-    helpers.cesiumCredits();
-    helpers.setActiveControls(oGlobe, viewer);
-    helpers.addLayertypes();
-    helpers.pickedFeatureStyle();
-
-    cesiumSettings.globe();
-    cesiumSettings.scene();
-
-    assets.terrainProviders();
-    assets.cesium3DtilesProviders();
-    assets.gltfProviders();
-
-    get3DFeatureInfo();
-
-    this.on('render', this.onRender);
-    this.addComponents(buttons);
-    this.render();
-  },
-  onInit() {
-    globeEl = Origo.ui.Element({
-      tagName: 'div',
-      cls: 'flex column z-index-ontop-top-times20'
-    });
-    globeButton = Origo.ui.Button({
-      cls: 'o-measure padding-small margin-bottom-smaller icon-smaller round light box-shadow',
-      click() {
-        // Toggles globe on/off
-        // TODO
-        // Toggle flatpickrButton aswell
-        toggleGlobe();
-        helpers.setActiveControls(oGlobe, viewer);
-      },
-      icon: '#ic_cube_outline_24px',
-      tooltipText: 'Globe',
-      tooltipPlacement: 'east'
-    });
-    buttons.push(globeButton);
-
-    flatpickrButton = Origo.ui.Button({
-      cls: 'o-measure-length padding-small margin-bottom-smaller icon-smaller round light box-shadow',
-      click() {
-        // Toggles datetime picker
-        // TODO
-        // Close datetime picker
-        fp.open();
-      },
-      icon: '#ic_clock_24px',
-      tooltipText: 'Datetime picker',
-      tooltipPlacement: 'east'
-    });
-    buttons.push(flatpickrButton);
-  },
-  render() {
-    htmlString = `${globeEl.render()}`;
-    el = Origo.ui.dom.html(htmlString);
-    document.getElementById(target).appendChild(el);
-
-    htmlString = globeButton.render();
-    el = Origo.ui.dom.html(htmlString);
-    document.getElementById(globeEl.getId()).appendChild(el);
-
-    htmlString = flatpickrButton.render();
-    el = Origo.ui.dom.html(htmlString);
-    document.getElementById(globeEl.getId()).appendChild(el);
-
-    this.dispatch('render');
-  },
-  isGlobeActive() {
-    return isGlobeActive(oGlobe);
-  }
-});
+  });
 };
 
 export default Globe;

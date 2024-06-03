@@ -1,33 +1,27 @@
 import {
   Cesium3DTileset,
   createOsmBuildingsAsync,
-  Cesium3DTileStyle
+  Cesium3DTileStyle,
+  Color
 } from 'cesium';
 
-export default async (scene, url, outline, shadows, conditions, show, maximumScreenSpaceError, cesiumIontoken) => {
+export default async (scene, url, showOutline, outlineColor, conditions, show, maximumScreenSpaceError, cesiumIontoken) => {
   let tileset;
   if (typeof url === 'number' && cesiumIontoken) {
     tileset = await Cesium3DTileset.fromIonAssetId(url, {
       maximumScreenSpaceError,
-      showOutline: outline || false,
-      dynamicScreenSpaceError: true,
-      dynamicScreenSpaceErrorDensity: 0.00278,
-      dynamicScreenSpaceErrorFactor: 4.0,
-      dynamicScreenSpaceErrorHeightFalloff: 0.25
+      dynamicScreenSpaceError: true
     });
   } else if (url === 'OSM-Buildings' && cesiumIontoken) {
     tileset = await createOsmBuildingsAsync({
-      shadows // Is this working?
+      showOutline,
+      outlineColor: Color[outlineColor]
     });
   } else {
     tileset = new Cesium3DTileset({
       url,
       maximumScreenSpaceError,
-      showOutline: outline || false,
-      dynamicScreenSpaceError: true,
-      dynamicScreenSpaceErrorDensity: 0.00278,
-      dynamicScreenSpaceErrorFactor: 4.0,
-      dynamicScreenSpaceErrorHeightFalloff: 0.25
+      dynamicScreenSpaceError: true
     });
   }
   scene.primitives.add(tileset);

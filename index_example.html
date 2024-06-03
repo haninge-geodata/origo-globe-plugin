@@ -33,7 +33,6 @@
           enableAtmosphere: true,
           enableGroundAtmosphere: true,
           enableFog: true,
-          enableLighting: true,
           enableShadows: true,
           skyBox: {
             url: "plugins/globe/cesiumassets/Assets/Textures/SkyBox/",
@@ -51,9 +50,8 @@
         "cesium3dTiles": [
           {
             "url": "OSM-Buildings",
-            "maximumScreenSpaceError": 2,
-            "outline": true,
-            "shadows": true,
+            "showOutline": true,
+            "outlineColor": 'AQUA',
             "filter": "${feature['elementId']} !== 251329024 && ${feature['elementId']} !== 425027205 && ${feature['elementId']} !== 425002757",
             "style": [
               [
@@ -92,20 +90,16 @@
           },
           {
             // "url": 123456,
-            "maximumScreenSpaceError": 0.1,
-            "outline": true,
-            "shadows": true
+            "maximumScreenSpaceError": 0.1
           },
           {
-            "url": "", // tileset.json
-            "maximumScreenSpaceError": 16,
-            "outline": true,
-            "shadows": true
+            "url": "/tileset.json",
+            "maximumScreenSpaceError": 2
           }
         ],
         "gltf": [
           {
-            "url": "", // .gltf
+            "url": ".gltf",
             "lat": 18.13764,
             "lng": 59.16456,
             "height": 100,
