@@ -7,11 +7,7 @@
 
 import Origo from 'Origo';
 import flatpickr from 'flatpickr';
-import * as confirmDatePlugin from 'flatpickr/dist/plugins/confirmDate/confirmDate';
 import * as Cesium from 'cesium';
-import proj4 from 'proj4';
-import Feature from 'ol/Feature.js';
-import Point from 'ol/geom/Point.js';
 import {
   Ion,
   IonResource,
@@ -22,8 +18,7 @@ import {
   ScreenSpaceEventType,
   Color,
   SkyBox,
-  JulianDate,
-  ClockViewModel
+  JulianDate
 } from 'cesium';
 // import { ThreedTile } from './layer/layerhelper';
 import isGlobeActive from './isglobeactive';
@@ -48,6 +43,7 @@ const Globe = function Globe(options = {}) {
   let fp;
   let flatpickrEl;
   let flatpickrButton;
+  let toggleShadowsButton;
   let scene;
   let htmlString;
   let el;
@@ -133,13 +129,7 @@ const Globe = function Globe(options = {}) {
         defaultDate: new Date(),
         enableSeconds: false,
         disableMobile: false,
-        plugins: [new confirmDatePlugin({
-          confirmIcon: "<i class='fa fa-check'></i>",
-          confirmText: 'OK',
-          showAlways: true,
-          theme: 'light'
-        }
-        )]
+        time_24hr: true
       });
     },
     // Origo style on picked feature
@@ -191,6 +181,8 @@ const Globe = function Globe(options = {}) {
         </symbol>
         <symbol viewBox="0 0 24 24" id="ic_clock-time-four_24px">
           <path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12S17.5 2 12 2M16.3 15.2L11 12.3V7H12.5V11.4L17 13.9L16.3 15.2Z" />
+        </symbol>
+          <svg viewBox="0 0 24 24" id="ic_box-shadow_24px"><path d="M3,3H18V18H3V3M19,19H21V21H19V19M19,16H21V18H19V16M19,13H21V15H19V13M19,10H21V12H19V10M19,7H21V9H19V7M16,19H18V21H16V19M13,19H15V21H13V19M10,19H12V21H10V19M7,19H9V21H7V19Z" />
         </symbol>
       </svg>
       `;
@@ -277,7 +269,8 @@ const Globe = function Globe(options = {}) {
         obj.feature = primitive;
         featureInfo.showFeatureInfo(obj);
         // featureInfo.render([obj], 'overlay', coordinate);
-      }
+      };
+      featureInfo.clear();
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   };
 
@@ -342,7 +335,6 @@ const Globe = function Globe(options = {}) {
     scene: () => {
       settings.enableAtmosphere = settings.enableAtmosphere ? scene.skyAtmosphere.show = true : scene.skyAtmosphere.show = false;
       settings.enableFog = settings.enableFog ? scene.fog.enabled = true : scene.fog.enabled = false;
-      settings.enableShadows = settings.enableShadows ? scene.shadowMap.enabled = true : scene.shadowMap.enabled = false;
     },
     // Configure options for Globe
     globe: () => {
@@ -435,14 +427,28 @@ const Globe = function Globe(options = {}) {
       flatpickrButton = Origo.ui.Button({
         cls: 'padding-small margin-bottom-smaller icon-smaller round light box-shadow',
         click() {
-          // Opens datetime picker, fp.close() in picker itself
-          fp.open();
+          let toggleFlatpickrButtonEl = document.getElementById(flatpickrButton.getId());
+          toggleFlatpickrButtonEl.classList.toggle('active');
+          toggleFlatpickrButtonEl.classList.contains('active') ? fp.open() : fp.close();
         },
         icon: '#ic_clock-time-four_24px',
         tooltipText: 'Datetime picker',
         tooltipPlacement: 'east'
       });
       buttons.push(flatpickrButton);
+
+      toggleShadowsButton = Origo.ui.Button({
+        cls: 'padding-small margin-bottom-smaller icon-smaller round light box-shadow',
+        click() {
+          let toggleShadowsButtonEl = document.getElementById(toggleShadowsButton.getId());
+          toggleShadowsButtonEl.classList.toggle('active');
+          toggleShadowsButtonEl.classList.contains('active') ? scene.shadowMap.enabled = true : scene.shadowMap.enabled = false;
+        },
+        icon: '#ic_box-shadow_24px',
+        tooltipText: 'Toggle shadows',
+        tooltipPlacement: 'east'
+      });
+      buttons.push(toggleShadowsButton);
     },
     render() {
       htmlString = `${globeEl.render()}`;
@@ -454,6 +460,10 @@ const Globe = function Globe(options = {}) {
       document.getElementById(globeEl.getId()).appendChild(el);
 
       htmlString = flatpickrButton.render();
+      el = Origo.ui.dom.html(htmlString);
+      document.getElementById(globeEl.getId()).appendChild(el);
+
+      htmlString = toggleShadowsButton.render();
       el = Origo.ui.dom.html(htmlString);
       document.getElementById(globeEl.getId()).appendChild(el);
 
