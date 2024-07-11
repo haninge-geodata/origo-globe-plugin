@@ -396,7 +396,7 @@ const Globe = function Globe(options = {}) {
       cesiumSettings.scene();
       // Call the assets
       assets.terrainProviders();
-      // assets.cesium3DtilesProviders();
+      assets.cesium3DtilesProviders();
       assets.gltfProviders();
 
       get3DFeatureInfo();
