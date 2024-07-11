@@ -29,21 +29,23 @@ export default async (scene, url, lat, lng, height, heightRef, animation) => {
         position,
         headingPositionRoll,
         Ellipsoid.WGS84,
-        fixedFrameTransform
+        fixedFrameTransform,
       ),
       heightReference,
       scene,
-      minimumPixelSize: 1
+      name: 'model',
+      minimumPixelSize: 1,
+      gltfCallback: gltf => {
+        animations = gltf.animations;
+      }
     });
     s.primitives.add(model);
     if (animation) {
-      model.gltfCallback = gltf => {
-        animations = gltf.animations;
-      };
       model.readyEvent.addEventListener(() => {
         model.activeAnimations.add({
           index: animations.length - 1,
-          loop: ModelAnimationLoop.REPEAT
+     loop: ModelAnimationLoop.REPEAT,
+     multiplier: 0.5,
         });
       });
     }

@@ -8,6 +8,7 @@
 import Origo from 'Origo';
 import flatpickr from 'flatpickr';
 import * as Cesium from 'cesium';
+import proj4 from 'proj4';
 import {
   Ion,
   IonResource,
@@ -20,11 +21,9 @@ import {
   SkyBox,
   JulianDate
 } from 'cesium';
-// import { ThreedTile } from './layer/layerhelper';
 import isGlobeActive from './isglobeactive';
-import addLayertypes from './layer/layertype';
-import addGltf from './layer/gltf';
-import add3DTiles from './layer/threedtile';
+import addGLTF from './layer/gltf';
+import add3DTile from './layer/threedtile';
 
 window.Cesium = Cesium;
 
@@ -61,6 +60,9 @@ const Globe = function Globe(options = {}) {
     deactivateControls = []
   } = options;
   const buttons = [];
+  const Layer = Origo.ol.layer.Layer;
+  const Feature = Origo.ol.Feature;
+  const Point = Origo.ol.geom.Point;
 
   // To use Cesium Ion features token needs to be provided in config option "token"
   Ion.defaultAccessToken = cesiumIontoken;
@@ -110,11 +112,8 @@ const Globe = function Globe(options = {}) {
         }
       });
     },
-    addLayertypes,
-    // TODO
-    // Put picker in modal, centered on screen
-    // Change font-family
-    timeSetter: () => {
+    // Date and time picker
+    timeSetter() {
       flatpickrEl = Origo.ui.Element({
         tagName: 'div',
         cls: 'flatpickrEl z-index-ontop-top-times20'
@@ -123,11 +122,10 @@ const Globe = function Globe(options = {}) {
       htmlString = flatpickrEl.render();
       el = Origo.ui.dom.html(htmlString);
       document.getElementById(target).appendChild(el);
-
       fp = flatpickr(document.getElementById(flatpickrEl.getId()), {
         enableTime: true,
         defaultDate: new Date(),
-        enableSeconds: false,
+        enableSeconds: true,
         disableMobile: false,
         time_24hr: true
       });
@@ -139,7 +137,7 @@ const Globe = function Globe(options = {}) {
       if (PostProcessStageLibrary.isSilhouetteSupported(scene)) {
         const silhouetteBlue = PostProcessStageLibrary.createEdgeDetectionStage();
         silhouetteBlue.uniforms.color = Color.ROYALBLUE;
-        silhouetteBlue.uniforms.length = 0.1;
+        silhouetteBlue.uniforms.length = 0.01;
         silhouetteBlue.selected = [];
 
         scene.postProcessStages.add(
@@ -195,79 +193,93 @@ const Globe = function Globe(options = {}) {
   // Use featureInfo in globe mode
   const get3DFeatureInfo = () => {
     const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
-    const obj = {};
+    const obj2D = {};
+    const obj3D = {};
     let title;
     let coordinate;
+    let lon;
+    let lat;
+    let alt;
+    let destination;
+
 
     handler.setInputAction((click) => {
       const feature = scene.pick(click.position);
       const cartesian = scene.pickPosition(click.position);
-
-      const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-      const lon = Cesium.Math.toDegrees(Number(cartographic.longitude));
-      const lat = Cesium.Math.toDegrees(Number(cartographic.latitude));
-      const alt = cartographic.height + 150;
-      const destination = Cesium.Cartesian3.fromDegrees(lon, lat - 0.004, alt);
+      if (cartesian) {
+        const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+        lon = Cesium.Math.toDegrees(Number(cartographic.longitude));
+        lat = Cesium.Math.toDegrees(Number(cartographic.latitude));
+        alt = cartographic.height + 150;
+        destination = Cesium.Cartesian3.fromDegrees(lon, lat - 0.006, alt);
+        coordinate = [lon, lat];
+      }
       const orientation = {
         heading: Cesium.Math.toRadians(0.0),
         pitch: Cesium.Math.toRadians(-20.0),
         roll: 0.0,
       }
-      helpers.flyTo(destination, 3, orientation);
-
-      coordinate = [lon, lat];
 
       if (Cesium.defined(feature) && feature instanceof Cesium.Cesium3DTileFeature) {
-        console.warn('Infowindow för 3D objekt är inte klart för användning')
+        helpers.flyTo(destination, 3, orientation);
 
-        // const layerName = feature.primitive.featureIdLabel;
+        const layerName = feature.primitive.featureIdLabel;
 
-        // if (viewer.getProjectionCode() === 'EPSG:3857') {
-        //   coordinate = proj4('EPSG:4326', 'EPSG:3857', [lon, lat]);
-        // }
+        if (viewer.getProjectionCode() === 'EPSG:3857') {
+          coordinate = proj4('EPSG:4326', 'EPSG:3857', [lon, lat]);
+        }
 
-        // const propertyIds = feature.getPropertyIds();
-        // console.log('propertyIds ', propertyIds);
-        // const contentItems = [];
+        const propertyIds = feature.getPropertyIds();
+        console.log('propertyIds ', propertyIds);
+        const contentItems = [];
 
-        // propertyIds.forEach((propertyId) => {
-        //   const propId = feature.getProperty(propertyId);
-        //   title = feature.getProperty('name');
-        //   if (title === undefined) {
-        //     title = `Byggnadsid: ${feature.getProperty('elementId')}`;
-        //   }
-        //   if (propId !== undefined) {
-        //     const content = `<ul><li><b>${propertyId}:</b> ${feature.getProperty(
-        //       propertyId
-        //     )}</li>`;
-        //     contentItems.push(content);
-        //   }
-        // });
-        // obj.title = `${title}`;
-        // obj.layerName = layerName;
-        // // obj.name = layerName;
-        // console.log('contentItems ', contentItems);
-        // // obj.content = `${contentItems.join(' ')}</ul>`;
-        // // skapar en ny olFeature här baserat på 2D-koordinaterna att skicka in till featureInfo
-        // // pga doRender() vill ha en sån. Utan Feature renderas popup på fel ställe,
-        // // även om man skickar med koordinater till featureInfo.render()
-        // obj.layer = new Feature({
-        //   geometry: new Point(coordinate),
-        //   title: `${title}`,
-        //   name: 'DummyPoint',
-        //   content: `${contentItems.join(' ')}</ul>`
-        // });
-        // featureInfo.showFeatureInfo(obj);
+        propertyIds.forEach((propertyId) => {
+          const propId = feature.getProperty(propertyId);
+          title = feature.getProperty('name') || 'Byggnad';
+          if (title === undefined) {
+            title = `Byggnadens ID: ${feature.getProperty('elementId')}`;
+          }
+          if (propId !== undefined) {
+            const content = `<ul><li><b>${propertyId.split(/(?:#|:)+/).pop().replace(/^\w/, (c) => c.toUpperCase())}:</b> ${feature.getProperty(propertyId)}</li>`;
+            contentItems.push(content);
+          }
+        });
+        obj3D.title = `${title}`;
+        obj3D.layerName = layerName;
+        // obj3D.name = layerName;
+
+        // obj3D.content = `${contentItems.join(' ')}</ul>`;
+        // skapar en ny olFeature här baserat på 2D-koordinaterna att skicka in till featureInfo
+        // pga doRender() vill ha en sån. Utan Feature renderas popup på fel ställe,
+        // även om man skickar med koordinater till featureInfo.render()
+        obj3D.layer = new Layer({
+          title: `${title}`,
+          name: layerName,
+          content: `${contentItems.join(' ')}</ul>`
+        });
+        obj3D.feature = new Feature({
+          geometry: new Point(coordinate),
+          title: `${title}`,
+          name: layerName,
+          content: `${contentItems.join(' ')}</ul>`
+        });
+
+        console.log('3d obj ', obj3D);
+
+        featureInfo.showFeatureInfo(obj3D);
       } else if (!Cesium.defined(feature)) {
         featureInfo.clear();
       } else if (feature.primitive.olFeature) {
+        helpers.flyTo(destination, 3, orientation);
         coordinate = feature.primitive.olFeature.getGeometry().getCoordinates();
         const primitive = feature.primitive.olFeature;
         const layer = feature.primitive.olLayer;
-        obj.layer = layer;
-        obj.layerName = feature.primitive.olLayer.get('title');
-        obj.feature = primitive;
-        featureInfo.showFeatureInfo(obj);
+        obj2D.layer = layer;
+        obj2D.layerName = feature.primitive.olLayer.get('title');
+        obj2D.feature = primitive;
+        console.log('2d obj ', obj2D);
+
+        featureInfo.showFeatureInfo(obj2D);
         // featureInfo.render([obj], 'overlay', coordinate);
       };
       featureInfo.clear();
@@ -302,17 +314,7 @@ const Globe = function Globe(options = {}) {
     },
     // Cesium 3D Tile providers
     cesium3DtilesProviders: () => {
-      if (cesium3dTiles) {
-        cesium3dTiles.forEach((tilesAsset) => {
-          const url = tilesAsset.url;
-          const showOutline = tilesAsset.showOutline;
-          const outlineColor = tilesAsset.outlineColor;
-          const conditions = tilesAsset.style || undefined;
-          const show = tilesAsset.filter || 'undefined';
-          const maximumScreenSpaceError = tilesAsset.maximumScreenSpaceError;
-          add3DTiles(scene, url, showOutline, outlineColor, conditions, show, maximumScreenSpaceError, cesiumIontoken);
-        });
-      }
+      add3DTile(scene, map, cesiumIontoken);
     },
     // GLTF providers
     gltfProviders: () => {
@@ -324,7 +326,7 @@ const Globe = function Globe(options = {}) {
           const height = gltfAsset.height;
           const heightReference = gltfAsset.heightReference;
           const animation = gltfAsset.animation;
-          addGltf(scene, url, lat, lng, height, heightReference, animation);
+          addGLTF(scene, url, lat, lng, height, heightReference, animation);
         });
       }
     }
@@ -372,8 +374,6 @@ const Globe = function Globe(options = {}) {
       oGlobe = new window.OLCesium({
         map,
         target: oGlobeTarget,
-        scene3DOnlyy: true,
-        terrainExaggeration: 1,
         time() {
           return JulianDate.fromDate(new Date(fp.element.value));
         }
@@ -390,18 +390,16 @@ const Globe = function Globe(options = {}) {
       helpers.activeGlobeOnStart();
       helpers.cesiumCredits();
       helpers.setActiveControls(oGlobe, viewer);
-      helpers.addLayertypes();
       helpers.pickedFeatureStyle();
       // Call the settings
       cesiumSettings.globe();
       cesiumSettings.scene();
       // Call the assets
       assets.terrainProviders();
-      assets.cesium3DtilesProviders();
+      // assets.cesium3DtilesProviders();
       assets.gltfProviders();
 
       get3DFeatureInfo();
-
       this.on('render', this.onRender);
       this.addComponents(buttons);
       this.render();
@@ -471,7 +469,14 @@ const Globe = function Globe(options = {}) {
     },
     isGlobeActive() {
       return isGlobeActive(oGlobe);
-    }
+    },
+    add3DTile() {
+      return add3DTile;
+    },
+    addGLTF() {
+      return addGLTF;
+    },
+
   });
 };
 
