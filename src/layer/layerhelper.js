@@ -1,6 +1,6 @@
-const Layer = Origo.ol.layer.Layer;
-const Source = Origo.ol.source.Source;
-const LayerProperty = Origo.ol.layer.Property;
+import Layer from "ol/layer/Layer";
+import Source from "ol/source/Source";
+import LayerProperty from "ol/layer/Property.js";
 
 
 const superOptions = {
@@ -8,13 +8,9 @@ const superOptions = {
 };
 class ThreedTile extends Layer {
   constructor(options) {
-
     super(superOptions);
     for (const [key, value] of Object.entries(options)) {
-
-      key === "visible"
-        ? this.set(LayerProperty.VISIBLE, value)
-        : (this.values_[key] = value);
+      key === "visible" ? this.set(LayerProperty.VISIBLE, value) : (this.values_[key] = value);
     }
     this.setVisible = function (visible) {
       this.set(LayerProperty.VISIBLE, visible);
@@ -32,7 +28,6 @@ class ThreedTile extends Layer {
 
 const threedtile = function threedtile(options) {
   //const threedtileOptions = Object.assign(layerOptions);
-
   return new ThreedTile(options);
 };
 export { threedtile, ThreedTile };

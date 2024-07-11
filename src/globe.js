@@ -312,8 +312,8 @@ const Globe = function Globe(options = {}) {
         scene.terrainProvider = terrain;
       }
     },
-    // Cesium 3D Tile providers
-    cesium3DtilesProviders: () => {
+     // Cesium 3D Tile providers
+     cesium3DtilesProviders: () => {
       add3DTile(scene, map, cesiumIontoken);
     },
     // GLTF providers
@@ -470,9 +470,9 @@ const Globe = function Globe(options = {}) {
     isGlobeActive() {
       return isGlobeActive(oGlobe);
     },
-    add3DTile() {
-      return add3DTile;
-    },
+    // threedtiletype() {
+    //   return threedtile;
+    // },
     addGLTF() {
       return addGLTF;
     },

@@ -19,19 +19,22 @@ export default async (scene, map, cesiumIontoken) => {
         layerTileset = await Cesium3DTileset.fromIonAssetId(url, {
           instanceFeatureIdLabel: layer.get('name'),
           maximumScreenSpaceError: layer.get('maximumScreenSpaceError'),
-          dynamicScreenSpaceError: true
+          dynamicScreenSpaceError: true,
+          show: layer.get('visible')
         });
       } else if (url === 'OSM-Buildings' && cesiumIontoken) {
         layerTileset = await createOsmBuildingsAsync({
           instanceFeatureIdLabel: layer.get('name'),
           showOutline: layer.get('showOutline'),
-          outlineColor: Color[layer.get('outlineColor')]
+          outlineColor: Color[layer.get('outlineColor')],
+          show: layer.get('visible')
         });
       } else {
         layerTileset = new Cesium3DTileset({
           url,
           maximumScreenSpaceError: layer.get('maximumScreenSpaceError'),
-          dynamicScreenSpaceError: true
+          dynamicScreenSpaceError: true,
+          show: layer.get('visible')
         });
       }
       tileset = scene.primitives.add(layerTileset);
