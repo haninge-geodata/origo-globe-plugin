@@ -11,7 +11,7 @@ export default async (scene, map, cesiumIontoken) => {
   let layerTileset;
   const layers = map.getLayers().getArray();
   layers.forEach(async (layer) => {
-    if (layer instanceof ThreedTile) {
+    if (layer.constructor.name === 'ThreedTile') {
       const url = layer.get('url');
       const conditions = layer.get('style') || undefined;
       const show = layer.get('filter') || undefined;
