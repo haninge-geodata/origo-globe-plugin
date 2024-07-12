@@ -229,7 +229,6 @@ const Globe = function Globe(options = {}) {
         }
 
         const propertyIds = feature.getPropertyIds();
-        console.log('propertyIds ', propertyIds);
         const contentItems = [];
 
         propertyIds.forEach((propertyId) => {
@@ -245,8 +244,6 @@ const Globe = function Globe(options = {}) {
         });
         obj3D.title = `${title}`;
         obj3D.layerName = layerName;
-        // obj3D.name = layerName;
-
         // obj3D.content = `${contentItems.join(' ')}</ul>`;
         // skapar en ny olFeature här baserat på 2D-koordinaterna att skicka in till featureInfo
         // pga doRender() vill ha en sån. Utan Feature renderas popup på fel ställe,
@@ -263,8 +260,6 @@ const Globe = function Globe(options = {}) {
           content: `${contentItems.join(' ')}</ul>`
         });
 
-        console.log('3d obj ', obj3D);
-
         featureInfo.showFeatureInfo(obj3D);
       } else if (!Cesium.defined(feature)) {
         featureInfo.clear();
@@ -276,7 +271,6 @@ const Globe = function Globe(options = {}) {
         obj2D.layer = layer;
         obj2D.layerName = feature.primitive.olLayer.get('title');
         obj2D.feature = primitive;
-        console.log('2d obj ', obj2D);
 
         featureInfo.showFeatureInfo(obj2D);
         // featureInfo.render([obj], 'overlay', coordinate);
