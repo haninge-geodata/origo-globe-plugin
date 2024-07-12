@@ -40,11 +40,8 @@ export default async (scene, map, cesiumIontoken) => {
       }
       tileset = scene.primitives.add(layerTileset);
       layer.CesiumTileset = tileset;
-      layer.get = function (prop) {
-        if (prop === "name") {
-          return this.CesiumTileset.featureIdLabel;
-        }
-      }
+      layer.CesiumTileset.OrigoLayerName = layer.get('name');
+
 
 
       if (conditions) {

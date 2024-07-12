@@ -223,8 +223,7 @@ const Globe = function Globe(options = {}) {
       if (Cesium.defined(feature) && feature instanceof Cesium.Cesium3DTileFeature) {
         helpers.flyTo(destination, 3, orientation);
 
-        const layerName = feature.primitive.featureIdLabel;
-
+        const layerName = feature.primitive.OrigoLayerName;
         if (viewer.getProjectionCode() === 'EPSG:3857') {
           coordinate = proj4('EPSG:4326', 'EPSG:3857', [lon, lat]);
         }
