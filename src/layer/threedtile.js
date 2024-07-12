@@ -4,13 +4,14 @@ import {
   Cesium3DTileStyle,
   Color
 } from 'cesium';
-import { ThreedTile } from './layerhelper';
+
 
 export default async (scene, map, cesiumIontoken) => {
   let tileset;
   let layerTileset;
   const layers = map.getLayers().getArray();
   layers.forEach(async (layer) => {
+
     if (layer.constructor.name === 'ThreedTile') {
       const url = layer.get('url');
       const conditions = layer.get('style') || undefined;
@@ -39,6 +40,12 @@ export default async (scene, map, cesiumIontoken) => {
       }
       tileset = scene.primitives.add(layerTileset);
       layer.CesiumTileset = tileset;
+      layer.get = function (prop) {
+        if (prop === "name") {
+          return this.CesiumTileset.featureIdLabel;
+        }
+      }
+
 
       if (conditions) {
         layerTileset.style = new Cesium3DTileStyle({
