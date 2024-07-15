@@ -52,57 +52,7 @@
             }
           }
         },
-        // "cesiumIontoken": "Needed if using OSM-Buildings or other Cesium Ion assets",
-        "cesium3dTiles": [
-          {
-            "url": "OSM-Buildings",
-            "showOutline": true,
-            "outlineColor": 'AQUA',
-            "filter": "${feature['elementId']} !== 251329024 && ${feature['elementId']} !== 425027205 && ${feature['elementId']} !== 425002757",
-            "style": [
-              [
-                "${feature['building']} === 'civic' || ${feature['building']} === 'construction' || ${feature['building']} === 'church'",
-                "color('#ed6258', 1)"
-              ],
-              [
-                "${feature['building']} === 'commercial' || ${feature['building']} === 'retail' || ${feature['building']} === 'office'",
-                "color('#af8b74', 1)"
-              ],
-              [
-                "${feature['building']} === 'apartments' || ${feature['building']} === 'residential' || ${feature['building']} === 'house' || ${feature['building']} === 'yes' || ${feature['building']} === 'roof'",
-                "color('#c98754', 1)"
-              ],
-              [
-                "${feature['building']} === 'warehouse' || ${feature['building']} === 'manufacture' || ${feature['building']} === 'industrial'",
-                "color('#919494', 1)"
-              ],
-              [
-                "${feature['building']} === 'school' || ${feature['amenity']} === 'university' || ${feature['building']} === 'kindergarten'",
-                "color('#ef7f77', 1)"
-              ],
-              [
-                "${feature['building']} === 'parking' || ${feature['amenity']} === 'parking' || ${feature['building']} === 'garages' || ${feature['building']} === 'garage'",
-                "color('#af8b74', 1)"
-              ],
-              [
-                "${feature['building']} === 'farm_auxiliary' || ${feature['building']} === 'detached'",
-                "color('#a69774', 1)"
-              ],
-              [
-                true,
-                "color('#ef7f77', 1)"
-              ]
-            ]
-          },
-          {
-            // "url": 123456,
-            "maximumScreenSpaceError": 0.1
-          },
-          {
-            "url": "/tileset.json",
-            "maximumScreenSpaceError": 2
-          }
-        ],
+        "cesiumIontoken": "",
         "gltf": [
           {
             "url": ".gltf",

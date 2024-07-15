@@ -1,5 +1,6 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const WriteFilePlugin = require('write-file-webpack-plugin');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common');
 
@@ -32,6 +33,9 @@ module.exports = merge(common, {
     }
   },
   plugins: [
+    new WriteFilePlugin({
+      test: /^(?!.*(hot)).*/,
+    }),
     new CopyWebpackPlugin({
       patterns: [
         { from: path.join(cesiumSource, cesiumWorkers), to: `${__dirname}/../../origo/plugins/globe/cesiumassets/Workers` },

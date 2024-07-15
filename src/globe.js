@@ -304,8 +304,8 @@ const Globe = function Globe(options = {}) {
         scene.terrainProvider = terrain;
       }
     },
-     // Cesium 3D Tile providers
-     cesium3DtilesProviders: () => {
+    // Cesium 3D Tile providers
+    cesium3DtilesProviders: () => {
       add3DTile(scene, map, cesiumIontoken);
     },
     // GLTF providers
@@ -329,12 +329,12 @@ const Globe = function Globe(options = {}) {
     scene: () => {
       settings.enableAtmosphere = settings.enableAtmosphere ? scene.skyAtmosphere.show = true : scene.skyAtmosphere.show = false;
       settings.enableFog = settings.enableFog ? scene.fog.enabled = true : scene.fog.enabled = false;
-      settings.shadows.darkness = settings.shadows.darkness ? scene.shadowMap.darkness = settings.shadows.darkness : false,
-      settings.shadows.fadingEnabled = settings.shadows.fadingEnabled ? scene.shadowMap.fadingEnabled = settings.shadows.fadingEnabled : false,
-      settings.shadows.maximumDistance = settings.shadows.maximumDistance ? scene.shadowMap.maximumDistance = settings.shadows.maximumDistance : false,
-      settings.shadows.normalOffset = settings.shadows.normalOffset ? scene.shadowMap.normalOffset = settings.shadows.normalOffset : false,
-      settings.shadows.size = settings.shadows.size ? scene.shadowMap.size = settings.shadows.size : false,
-      settings.shadows.softShadows = settings.shadows.softShadows ? scene.shadowMap.softShadows = settings.shadows.softShadows : false
+      settings.shadows.darkness = settings.shadows.darkness ? scene.shadowMap.darkness = settings.shadows.darkness : false;
+      settings.shadows.fadingEnabled = settings.shadows.fadingEnabled ? scene.shadowMap.fadingEnabled = settings.shadows.fadingEnabled : false;
+      settings.shadows.maximumDistance = settings.shadows.maximumDistance ? scene.shadowMap.maximumDistance = settings.shadows.maximumDistance : false;
+      settings.shadows.normalOffset = settings.shadows.normalOffset ? scene.shadowMap.normalOffset = settings.shadows.normalOffset : false;
+      settings.shadows.size = settings.shadows.size ? scene.shadowMap.size = settings.shadows.size : false;
+      settings.shadows.softShadows = settings.shadows.softShadows ? scene.shadowMap.softShadows = settings.shadows.softShadows : false;
     },
     // Configure options for Globe
     globe: () => {
