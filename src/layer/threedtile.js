@@ -30,9 +30,8 @@ export default async (scene, map, cesiumIontoken) => {
           outlineColor: Color[layer.get('outlineColor')],
           show: layer.get('visible')
         });
-      } else {
-        layerTileset = new Cesium3DTileset({
-          url,
+      } else if (typeof url === 'string') {
+        layerTileset = await Cesium3DTileset.fromUrl(url, {
           maximumScreenSpaceError: layer.get('maximumScreenSpaceError'),
           dynamicScreenSpaceError: true,
           show: layer.get('visible')
