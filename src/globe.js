@@ -268,7 +268,7 @@ const Globe = function Globe(options = {}) {
         const primitive = feature.primitive.olFeature;
         const layer = feature.primitive.olLayer;
         obj2D.layer = layer;
-        obj2D.layerName = feature.primitive.olLayer.get('title');
+        obj2D.layerName = feature.primitive.olLayer.get('name');
         obj2D.feature = primitive;
 
         featureInfo.showFeatureInfo(obj2D);
