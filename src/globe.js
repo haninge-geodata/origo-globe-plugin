@@ -31,6 +31,19 @@ const Globe = function Globe(options = {}) {
   let {
     target
   } = options;
+
+  const {
+    globeOnStart,
+    showGlobe = true,
+    resolutionScale = window.devicePixelRatio,
+    settings = {},
+    cesiumTerrainProvider,
+    cesiumIontoken,
+    cesiumIonassetIdTerrain,
+    gltf,
+    deactivateControls = []
+  } = options;
+
   let map;
   let viewer;
   let oGlobe;
@@ -47,17 +60,6 @@ const Globe = function Globe(options = {}) {
   let htmlString;
   let el;
 
-  const {
-    globeOnStart,
-    showGlobe = true,
-    resolutionScale = window.devicePixelRatio,
-    settings = {},
-    cesiumTerrainProvider,
-    cesiumIontoken,
-    cesiumIonassetIdTerrain,
-    gltf,
-    deactivateControls = []
-  } = options;
   const buttons = [];
   const Layer = Origo.ol.layer.Layer;
   const Feature = Origo.ol.Feature;
@@ -327,20 +329,27 @@ const Globe = function Globe(options = {}) {
   const cesiumSettings = {
     // Configure options for Scene
     scene: () => {
-      settings.enableAtmosphere = settings.enableAtmosphere ? scene.skyAtmosphere.show = true : scene.skyAtmosphere.show = false;
-      settings.enableFog = settings.enableFog ? scene.fog.enabled = true : scene.fog.enabled = false;
-      settings.shadows.darkness = settings.shadows.darkness ? scene.shadowMap.darkness = settings.shadows.darkness : false;
-      settings.shadows.fadingEnabled = settings.shadows.fadingEnabled ? scene.shadowMap.fadingEnabled = settings.shadows.fadingEnabled : false;
-      settings.shadows.maximumDistance = settings.shadows.maximumDistance ? scene.shadowMap.maximumDistance = settings.shadows.maximumDistance : false;
-      settings.shadows.normalOffset = settings.shadows.normalOffset ? scene.shadowMap.normalOffset = settings.shadows.normalOffset : false;
-      settings.shadows.size = settings.shadows.size ? scene.shadowMap.size = settings.shadows.size : false;
-      settings.shadows.softShadows = settings.shadows.softShadows ? scene.shadowMap.softShadows = settings.shadows.softShadows : false;
+      // Update atmosphere settings
+      scene.skyAtmosphere.show = !!settings.enableAtmosphere;
+      // Update fog settings
+      scene.fog.enabled = !!settings.enableFog;
+      // Update shadow settings
+      const shadowSettings = settings.shadows;
+      const shadowMap = scene.shadowMap;
+
+      shadowMap.darkness = shadowSettings.darkness || false;
+      shadowMap.fadingEnabled = !!shadowSettings.fadingEnabled;
+      shadowMap.maximumDistance = shadowSettings.maximumDistance || false;
+      shadowMap.normalOffset = !!shadowSettings.normalOffset;
+      shadowMap.size = shadowSettings.size || false;
+      shadowMap.softShadows = !!shadowSettings.softShadows;
     },
     // Configure options for Globe
     globe: () => {
       const globe = scene.globe;
-      settings.depthTestAgainstTerrain = settings.depthTestAgainstTerrain ? globe.depthTestAgainstTerrain = true : globe.depthTestAgainstTerrain = false;
-      settings.enableGroundAtmosphere = settings.enableGroundAtmosphere ? globe.showGroundAtmosphere = true : globe.showGroundAtmosphere = false;
+      globe.depthTestAgainstTerrain = !!settings.depthTestAgainstTerrain;
+      globe.enableGroundAtmosphere = !!settings.showGroundAtmosphere;
+
       if (settings.skyBox) {
         const url = settings.skyBox.url;
         scene.skyBox = new SkyBox({
@@ -438,7 +447,7 @@ const Globe = function Globe(options = {}) {
         click() {
           let toggleShadowsButtonEl = document.getElementById(toggleShadowsButton.getId());
           toggleShadowsButtonEl.classList.toggle('active');
-          toggleShadowsButtonEl.classList.contains('active') ? scene.shadowMap.enabled = true : scene.shadowMap.enabled = false;
+          toggleShadowsButtonEl.classList.contains('active') ? shadowMap.enabled = true : shadowMap.enabled = false;
         },
         icon: '#ic_box-shadow_24px',
         tooltipText: 'Toggle shadows',
