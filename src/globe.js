@@ -31,6 +31,19 @@ const Globe = function Globe(options = {}) {
   let {
     target
   } = options;
+
+  const {
+    globeOnStart,
+    showGlobe = true,
+    resolutionScale = window.devicePixelRatio,
+    settings = {},
+    cesiumTerrainProvider,
+    cesiumIontoken,
+    cesiumIonassetIdTerrain,
+    gltf,
+    deactivateControls = []
+  } = options;
+
   let map;
   let viewer;
   let oGlobe;
@@ -47,17 +60,6 @@ const Globe = function Globe(options = {}) {
   let htmlString;
   let el;
 
-  const {
-    globeOnStart,
-    showGlobe = true,
-    resolutionScale = window.devicePixelRatio,
-    settings = {},
-    cesiumTerrainProvider,
-    cesiumIontoken,
-    cesiumIonassetIdTerrain,
-    gltf,
-    deactivateControls = []
-  } = options;
   const buttons = [];
   const Layer = Origo.ol.layer.Layer;
   const Feature = Origo.ol.Feature;
@@ -77,6 +79,19 @@ const Globe = function Globe(options = {}) {
     }
   };
 
+  // Toggles subbuttons to globe button
+  const toggleButtons = () => {
+    const globeButtonEl = document.getElementById(globeButton.getId());
+    globeButtonEl.classList.toggle('active');
+
+    const flatpickrButtonEl = document.getElementById(flatpickrButton.getId());
+    const toggleShadowsButtonEl = document.getElementById(toggleShadowsButton.getId());
+    const isActive = globeButtonEl.classList.contains('active');
+
+    flatpickrButtonEl.classList.toggle('hidden', !isActive);
+    toggleShadowsButtonEl.classList.toggle('hidden', !isActive);
+  };
+
   const helpers = {
     // Init map with globe or not
     activeGlobeOnStart: () => {
@@ -90,8 +105,7 @@ const Globe = function Globe(options = {}) {
         scene.globe.show = false;
       }
     },
-    // TODO
-    // Put the cesium credits in origo credits container in origo style
+    // Hides Cesium credit container. Put the cesium credits in origo credits container in origo style
     cesiumCredits: () => {
       document.querySelectorAll('.cesium-credit-logoContainer')[0].parentNode.style.display = 'none';
     },
@@ -220,45 +234,35 @@ const Globe = function Globe(options = {}) {
       }
 
       if (Cesium.defined(feature) && feature instanceof Cesium.Cesium3DTileFeature) {
-        helpers.flyTo(destination, 3, orientation);
-
         const layerName = feature.primitive.OrigoLayerName;
+        const propertyIds = feature.getPropertyIds();
+        const contentItems = [];
+        helpers.flyTo(destination, 3, orientation);
         if (viewer.getProjectionCode() === 'EPSG:3857') {
           coordinate = proj4('EPSG:4326', 'EPSG:3857', [lon, lat]);
         }
 
-        const propertyIds = feature.getPropertyIds();
-        const contentItems = [];
-
         propertyIds.forEach((propertyId) => {
           const propId = feature.getProperty(propertyId);
-          title = feature.getProperty('name') || 'Byggnad';
+          title = feature.getProperty('name') || 'Anonym';
           if (title === undefined) {
-            title = `Byggnadens ID: ${feature.getProperty('elementId')}`;
+            title = `#ID: ${feature.getProperty('elementId')}`;
           }
           if (propId !== undefined) {
             const content = `<ul><li><b>${propertyId.split(/(?:#|:)+/).pop().replace(/^\w/, (c) => c.toUpperCase())}:</b> ${feature.getProperty(propertyId)}</li>`;
             contentItems.push(content);
           }
+          console.log(feature.getProperty(propertyId));
         });
         obj3D.title = `${title}`;
         obj3D.layerName = layerName;
-        // obj3D.content = `${contentItems.join(' ')}</ul>`;
-        // skapar en ny olFeature här baserat på 2D-koordinaterna att skicka in till featureInfo
-        // pga doRender() vill ha en sån. Utan Feature renderas popup på fel ställe,
-        // även om man skickar med koordinater till featureInfo.render()
         obj3D.layer = new Layer({
-          title: `${title}`,
-          name: layerName,
-          content: `${contentItems.join(' ')}</ul>`
+          "": `${contentItems.join(' ')}</ul>`
         });
         obj3D.feature = new Feature({
           geometry: new Point(coordinate),
-          title: `${title}`,
-          name: layerName,
-          content: `${contentItems.join(' ')}</ul>`
+          "": `${contentItems.join(' ')}</ul>`
         });
-
         featureInfo.showFeatureInfo(obj3D);
       } else if (!Cesium.defined(feature)) {
         featureInfo.clear();
@@ -327,20 +331,28 @@ const Globe = function Globe(options = {}) {
   const cesiumSettings = {
     // Configure options for Scene
     scene: () => {
-      settings.enableAtmosphere = settings.enableAtmosphere ? scene.skyAtmosphere.show = true : scene.skyAtmosphere.show = false;
-      settings.enableFog = settings.enableFog ? scene.fog.enabled = true : scene.fog.enabled = false;
-      settings.shadows.darkness = settings.shadows.darkness ? scene.shadowMap.darkness = settings.shadows.darkness : false;
-      settings.shadows.fadingEnabled = settings.shadows.fadingEnabled ? scene.shadowMap.fadingEnabled = settings.shadows.fadingEnabled : false;
-      settings.shadows.maximumDistance = settings.shadows.maximumDistance ? scene.shadowMap.maximumDistance = settings.shadows.maximumDistance : false;
-      settings.shadows.normalOffset = settings.shadows.normalOffset ? scene.shadowMap.normalOffset = settings.shadows.normalOffset : false;
-      settings.shadows.size = settings.shadows.size ? scene.shadowMap.size = settings.shadows.size : false;
-      settings.shadows.softShadows = settings.shadows.softShadows ? scene.shadowMap.softShadows = settings.shadows.softShadows : false;
+      // Enables/disables atmosphere
+      scene.skyAtmosphere.show = !!settings.enableAtmosphere;
+      // Enables fog/disables
+      scene.fog.enabled = !!settings.enableFog;
+      // Shadow settings
+      const shadowSettings = settings.shadows;
+      const shadowMap = scene.shadowMap;
+      shadowMap.darkness = shadowSettings.darkness || false;
+      shadowMap.fadingEnabled = !!shadowSettings.fadingEnabled;
+      shadowMap.maximumDistance = shadowSettings.maximumDistance || false;
+      shadowMap.normalOffset = !!shadowSettings.normalOffset;
+      shadowMap.size = shadowSettings.size || false;
+      shadowMap.softShadows = !!shadowSettings.softShadows;
     },
     // Configure options for Globe
     globe: () => {
       const globe = scene.globe;
-      settings.depthTestAgainstTerrain = settings.depthTestAgainstTerrain ? globe.depthTestAgainstTerrain = true : globe.depthTestAgainstTerrain = false;
-      settings.enableGroundAtmosphere = settings.enableGroundAtmosphere ? globe.showGroundAtmosphere = true : globe.showGroundAtmosphere = false;
+      // Enables/disables depthTestAgainstTerrain
+      globe.depthTestAgainstTerrain = !!settings.depthTestAgainstTerrain;
+      // Enables/disables enableGroundAtmosphere
+      globe.enableGroundAtmosphere = !!settings.showGroundAtmosphere;
+      // Options to set different skyboxes
       if (settings.skyBox) {
         const url = settings.skyBox.url;
         scene.skyBox = new SkyBox({
@@ -390,14 +402,12 @@ const Globe = function Globe(options = {}) {
       helpers.setActiveControls(oGlobe, viewer);
       helpers.pickedFeatureStyle();
       // Call the settings
-      cesiumSettings.globe();
-      cesiumSettings.scene();
+      Object.values(cesiumSettings).forEach(cesiumSetting => cesiumSetting());
       // Call the assets
-      assets.terrainProviders();
-      assets.cesium3DtilesProviders();
-      assets.gltfProviders();
-
+      Object.values(assets).forEach(asset => asset());
+      // Infowindow i globe mode
       get3DFeatureInfo();
+
       this.on('render', this.onRender);
       this.addComponents(buttons);
       this.render();
@@ -408,10 +418,12 @@ const Globe = function Globe(options = {}) {
         cls: 'flex column z-index-ontop-top-times20'
       });
       globeButton = Origo.ui.Button({
-        cls: 'o-measure padding-small margin-bottom-smaller icon-smaller round light box-shadow',
+        cls: 'o-globe padding-small margin-bottom-smaller icon-smaller round light box-shadow',
         click() {
           // Toggles globe on/off
           toggleGlobe();
+          // Toggles globe subbuttons unhide/hide
+          toggleButtons();
           helpers.setActiveControls(oGlobe, viewer);
         },
         icon: '#ic_cube_24px',
@@ -421,7 +433,7 @@ const Globe = function Globe(options = {}) {
       buttons.push(globeButton);
 
       flatpickrButton = Origo.ui.Button({
-        cls: 'padding-small margin-bottom-smaller icon-smaller round light box-shadow',
+        cls: 'padding-small margin-bottom-smaller icon-smaller round light box-shadow hidden',
         click() {
           let toggleFlatpickrButtonEl = document.getElementById(flatpickrButton.getId());
           toggleFlatpickrButtonEl.classList.toggle('active');
@@ -434,7 +446,7 @@ const Globe = function Globe(options = {}) {
       buttons.push(flatpickrButton);
 
       toggleShadowsButton = Origo.ui.Button({
-        cls: 'padding-small margin-bottom-smaller icon-smaller round light box-shadow',
+        cls: 'padding-small margin-bottom-smaller icon-smaller round light box-shadow hidden',
         click() {
           let toggleShadowsButtonEl = document.getElementById(toggleShadowsButton.getId());
           toggleShadowsButtonEl.classList.toggle('active');
@@ -467,14 +479,7 @@ const Globe = function Globe(options = {}) {
     },
     isGlobeActive() {
       return isGlobeActive(oGlobe);
-    },
-    // threedtiletype() {
-    //   return threedtile;
-    // },
-    addGLTF() {
-      return addGLTF;
-    },
-
+    }
   });
 };
 
