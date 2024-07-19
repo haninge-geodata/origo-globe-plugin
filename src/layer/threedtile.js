@@ -40,8 +40,7 @@ export default async (scene, map, cesiumIontoken) => {
       tileset = scene.primitives.add(layerTileset);
       layer.CesiumTileset = tileset;
       layer.CesiumTileset.OrigoLayerName = layer.get('name');
-      if (style) {
-
+      if (style != "default") {
         layerTileset.style = new Cesium3DTileStyle({
     
             ...style, show
@@ -49,7 +48,7 @@ export default async (scene, map, cesiumIontoken) => {
         });
       }  else {
         layerTileset.style = new Cesium3DTileStyle({
-
+          color:"color('white', 1)", show
         })
     };
     };
