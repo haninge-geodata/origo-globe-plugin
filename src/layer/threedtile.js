@@ -14,7 +14,7 @@ export default async (scene, map, cesiumIontoken) => {
 
     if (layer.constructor.name === 'ThreedTile') {
       const url = layer.get('url');
-      const conditions = layer.get('style') || undefined;
+      const style = layer.get('style') || undefined;
       const show = layer.get('filter') || undefined;
       if (typeof url === 'number' && cesiumIontoken) {
         layerTileset = await Cesium3DTileset.fromIonAssetId(url, {
@@ -40,14 +40,17 @@ export default async (scene, map, cesiumIontoken) => {
       tileset = scene.primitives.add(layerTileset);
       layer.CesiumTileset = tileset;
       layer.CesiumTileset.OrigoLayerName = layer.get('name');
-      if (conditions) {
+      if (style != "default") {
         layerTileset.style = new Cesium3DTileStyle({
-          color: {
-            conditions
-          },
-          show
+    
+            ...style, show
+     
         });
-      }
+      }  else {
+        layerTileset.style = new Cesium3DTileStyle({
+          color:"color('white', 1)", show
+        })
+    };
     };
   });
 }

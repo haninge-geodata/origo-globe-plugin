@@ -32,22 +32,40 @@ class ThreedTile extends Layer {
 
     this.setOpacity = function (alpha) {
       this.Opacity = alpha;
-      let expr = this.CesiumTileset.style.color.conditionsExpression.conditions;
+      const regex = /'(.*?)'/;
+      if (this.CesiumTileset.style.color.conditionsExpression) {
+        let expr = this.CesiumTileset.style.color.conditionsExpression.conditions
 
-      const cond = expr.map((c) => {
-        const regex = /'(.*?)'/;
-        const col = regex.exec(c[1])[0];
+        const cond = expr.map((c) => {
+
+          const col = regex.exec(c[1])[0];
+          const string = `color(${col}, ${alpha})`
+          return [c[0], string]
+        })
+        this.CesiumTileset.style = new Cesium3DTileStyle({
+          color: {
+            conditions: cond
+          }
+        });
+      } else {
+        let expr = this.CesiumTileset.style.color;
+        const col = regex.exec(expr.expression)[0];
         const string = `color(${col}, ${alpha})`
-        return [c[0], string]
-      });
-      this.CesiumTileset.style = new Cesium3DTileStyle({
-        color: {
-          conditions: cond
-        }
-      });
-    };
+        this.CesiumTileset.style = new Cesium3DTileStyle({
+          color: string
+        });
+      }
+
+    }
+
+
+
+
+      ;
     this.getOpacity = function () {
       return this.Opacity;
+
+
     };
   }
 };
