@@ -431,7 +431,7 @@ const Globe = function Globe(options = {}) {
         tooltipPlacement: 'east'
       });
       buttons.push(globeButton);
-
+      
       flatpickrButton = Origo.ui.Button({
         cls: 'padding-small margin-bottom-smaller icon-smaller round light box-shadow hidden',
         click() {
@@ -479,6 +479,12 @@ const Globe = function Globe(options = {}) {
     },
     isGlobeActive() {
       return isGlobeActive(oGlobe);
+    },
+    threedtiletype() {
+      return add3DTile;
+    },
+    gltftype() {
+      return addGLTF;
     }
   });
 };
