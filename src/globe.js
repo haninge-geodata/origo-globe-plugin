@@ -226,6 +226,28 @@ const Globe = function Globe(options = {}) {
         alt = cartographic.height + 150;
         destination = Cesium.Cartesian3.fromDegrees(lon, lat - 0.006, alt);
         coordinate = [lon, lat];
+        const allLayers=map.getAllLayers();
+        for (const layer of allLayers) {
+          if ( layer instanceof Origo.ol.layer.Image  )    {
+            const showFeatureInfoData = {"title": layer.get("title"), "layerName": layer.get("name"), "layer": layer}
+
+            if (viewer.getProjectionCode() === 'EPSG:3857') {
+              coordinate = proj4('EPSG:4326', 'EPSG:3857', [lon, lat]);
+            }
+            const featureInfoUrl = layer.getSource().getFeatureInfoUrl(    coordinate,
+              map.getView().getResolution(),
+              viewer.getProjectionCode(),
+              {INFO_FORMAT: "application/json"}
+            )
+            if (featureInfoUrl) {
+              fetch(featureInfoUrl)
+                .then((response) => response.text())
+                .then((feature) => {
+                  featureInfo.showFeatureInfo({...showFeatureInfoData, "feature": new Origo.ol.format.GeoJSON().readFeatures(feature)})
+                });
+            }
+          } 
+        }
       }
       const orientation = {
         heading: Cesium.Math.toRadians(0.0),
