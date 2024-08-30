@@ -3,6 +3,8 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common');
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+
 
 const cesiumSource = 'node_modules/cesium/Source';
 const cesiumWorkers = '../Build/Cesium/Workers';
@@ -33,6 +35,7 @@ module.exports = merge(common, {
     }
   },
   plugins: [
+    new CleanWebpackPlugin(),
     new WriteFilePlugin({
       test: /^(?!.*(hot)).*/,
     }),
