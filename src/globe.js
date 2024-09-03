@@ -228,7 +228,7 @@ const Globe = function Globe(options = {}) {
         coordinate = [lon, lat];
         const allLayers=map.getAllLayers();
         for (const layer of allLayers) {
-          if ( layer instanceof Origo.ol.layer.Image  )    {
+          if ( layer instanceof Origo.ol.layer.Image && layer.isVisible(map.getView())  )    {
             const showFeatureInfoData = {"title": layer.get("title"), "layerName": layer.get("name"), "layer": layer}
 
             if (viewer.getProjectionCode() === 'EPSG:3857') {
