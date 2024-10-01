@@ -16,10 +16,10 @@
   "scripts": {
     "start": "npm run prebuild-sass | run-p watch-js watch-sass",
     "watch-js": "webpack-dev-server --config ./tasks/webpack.dev.js --mode development",
-    "watch-sass": "node-sass -w --include-path scss ./scss/globe.scss ../origo/plugins/globe/globe.css",
-    "prebuild-sass": "node-sass --include-path scss ./scss/globe.scss ../origo/plugins/globe/globe.css",
+    "watch-sass": "node-sass -w --include-path scss scss/globe.scss ../origo/plugins/globe/globe.css",
+    "prebuild-sass": "node-sass --include-path scss scss/globe.scss ../origo/plugins/globe/globe.css",
     "build": "webpack --config ./tasks/webpack.prod.js && npm run build-sass",
-    "build-sass": "node-sass --include-path scss ./scss/globe.scss build/globe.css"
+    "build-sass": "node-sass --include-path scss scss/globe.scss build/globe.css"
   },
   "dependencies": {
     "cesium": "^1.113.0",

@@ -11,7 +11,7 @@ const cesiumWorkers = '../Build/Cesium/Workers';
 
 module.exports = merge(common, {
   output: {
-    path: `${__dirname}/../../../origo/plugins/globe`,
+    path: `${__dirname}/../../origo/plugins/globe`,
     publicPath: '/build',
     filename: 'globe.js',
     libraryTarget: 'var',
