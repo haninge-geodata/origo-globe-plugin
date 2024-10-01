@@ -95,10 +95,11 @@ const Globe = function Globe(options = {}) {
   const helpers = {
     // Init map with globe or not
     activeGlobeOnStart: () => {
-      const activeOnStart = globeOnStart ? toggleGlobe() : oGlobe.setEnabled(false);
-      return activeOnStart;
+      if (globeOnStart) {
+        toggleGlobe();
+        toggleButtons();
+      }
     },
-
     // Renders the globe or not, only effects the terrain and raster overlays on it
     showGlobeOption: () => {
       if (!showGlobe) {
@@ -109,7 +110,6 @@ const Globe = function Globe(options = {}) {
     cesiumCredits: () => {
       document.querySelectorAll('.cesium-credit-logoContainer')[0].parentNode.style.display = 'none';
     },
-
     // Helper to hide/unhide Origo controls that has no effect in globe mode
     setActiveControls: (getGlobe, v) => {
       deactivateControls.forEach((deactivateControl) => {
@@ -125,7 +125,7 @@ const Globe = function Globe(options = {}) {
         }
       });
     },
-    // Date and time picker
+    // Date and time picker from flatpickr
     timeSetter() {
       flatpickrEl = Origo.ui.Element({
         tagName: 'div',
@@ -215,7 +215,6 @@ const Globe = function Globe(options = {}) {
     let alt;
     let destination;
 
-
     handler.setInputAction((click) => {
       const feature = scene.pick(click.position);
       const cartesian = scene.pickPosition(click.position);
@@ -226,27 +225,23 @@ const Globe = function Globe(options = {}) {
         alt = cartographic.height + 150;
         destination = Cesium.Cartesian3.fromDegrees(lon, lat - 0.006, alt);
         coordinate = [lon, lat];
-        const allLayers=map.getAllLayers();
-        for (const layer of allLayers) {
-          if ( layer instanceof Origo.ol.layer.Image && layer.isVisible(map.getView())  )    {
-            const showFeatureInfoData = {"title": layer.get("title"), "layerName": layer.get("name"), "layer": layer}
 
+        const allLayers = map.getAllLayers();
+        for (const layer of allLayers) {
+          if (layer instanceof Origo.ol.layer.Image && layer.isVisible(map.getView()) && layer.getProperties().queryable) {
+            const showFeatureInfoData = { 'title': layer.get('title'), 'layerName': layer.get('name'), 'layer': layer }
             if (viewer.getProjectionCode() === 'EPSG:3857') {
               coordinate = proj4('EPSG:4326', 'EPSG:3857', [lon, lat]);
             }
-            const featureInfoUrl = layer.getSource().getFeatureInfoUrl(    coordinate,
-              map.getView().getResolution(),
-              viewer.getProjectionCode(),
-              {INFO_FORMAT: "application/json"}
-            )
+            const featureInfoUrl = layer.getSource().getFeatureInfoUrl(coordinate, map.getView().getResolution(), viewer.getProjectionCode(), { INFO_FORMAT: 'application/json' })
             if (featureInfoUrl) {
               fetch(featureInfoUrl)
                 .then((response) => response.text())
                 .then((feature) => {
-                  featureInfo.showFeatureInfo({...showFeatureInfoData, "feature": new Origo.ol.format.GeoJSON().readFeatures(feature)})
+                  featureInfo.showFeatureInfo({ ...showFeatureInfoData, 'feature': new Origo.ol.format.GeoJSON().readFeatures(feature) })
                 });
             }
-          } 
+          }
         }
       }
       const orientation = {
@@ -419,7 +414,6 @@ const Globe = function Globe(options = {}) {
       // Call the helpers
       helpers.addSvgIcons();
       helpers.showGlobeOption();
-      helpers.activeGlobeOnStart();
       helpers.cesiumCredits();
       helpers.setActiveControls(oGlobe, viewer);
       helpers.pickedFeatureStyle();
@@ -453,7 +447,7 @@ const Globe = function Globe(options = {}) {
         tooltipPlacement: 'east'
       });
       buttons.push(globeButton);
-      
+
       flatpickrButton = Origo.ui.Button({
         cls: 'padding-small margin-bottom-smaller icon-smaller round light box-shadow hidden',
         click() {
@@ -497,7 +491,9 @@ const Globe = function Globe(options = {}) {
       el = Origo.ui.dom.html(htmlString);
       document.getElementById(globeEl.getId()).appendChild(el);
 
+      helpers.activeGlobeOnStart();
       this.dispatch('render');
+
     },
     isGlobeActive() {
       return isGlobeActive(oGlobe);
