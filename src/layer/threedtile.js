@@ -16,6 +16,7 @@ export default async (scene, map, cesiumIontoken) => {
       const url = layer.get('url');
       const style = layer.get('style') || undefined;
       const show = layer.get('filter') || undefined;
+
       if (typeof url === 'number' && cesiumIontoken) {
         layerTileset = await Cesium3DTileset.fromIonAssetId(url, {
           instanceFeatureIdLabel: layer.get('name'),
@@ -42,15 +43,15 @@ export default async (scene, map, cesiumIontoken) => {
       layer.CesiumTileset.OrigoLayerName = layer.get('name');
       if (style != "default") {
         layerTileset.style = new Cesium3DTileStyle({
-    
-            ...style, show
-     
+          ...style,
+          show
         });
-      }  else {
+      } else {
         layerTileset.style = new Cesium3DTileStyle({
-          color:"color('white', 1)", show
+          color: "color('white', 1)",
+          show
         })
-    };
+      };
     };
   });
 }

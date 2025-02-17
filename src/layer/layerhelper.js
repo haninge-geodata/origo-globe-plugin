@@ -2,9 +2,7 @@ import Layer from "ol/layer/Layer";
 import Source from "ol/source/Source";
 import LayerProperty from "ol/layer/Property.js";
 import {
-  Cesium3DTileStyle,
-  ConditionsExpression,
-  Color
+  Cesium3DTileStyle
 } from 'cesium';
 
 const superOptions = {
@@ -18,26 +16,24 @@ class ThreedTile extends Layer {
     }
     this.CesiumTileset = undefined;
     this.Opacity = 1;
+    console.log(this);
     this.setVisible = function (visible) {
       this.set(LayerProperty.VISIBLE, visible);
       this.CesiumTileset.show = !this.CesiumTileset.show;
     };
-    this.setSource(new Source({ projection: "EPSG:3857" }));
+    this.setSource(new Source({ projection: 'EPSG:3857' || 'EPSG:4326' }));
     this.getMaxResolution = function () {
       return 10000000;
     };
     this.getMinResolution = function () {
       return 0;
     };
-
     this.setOpacity = function (alpha) {
       this.Opacity = alpha;
       const regex = /'(.*?)'/;
       if (this.CesiumTileset.style.color.conditionsExpression) {
         let expr = this.CesiumTileset.style.color.conditionsExpression.conditions
-
         const cond = expr.map((c) => {
-
           const col = regex.exec(c[1])[0];
           const string = `color(${col}, ${alpha})`
           return [c[0], string]
@@ -55,17 +51,9 @@ class ThreedTile extends Layer {
           color: string
         });
       }
-
-    }
-
-
-
-
-      ;
+    };
     this.getOpacity = function () {
       return this.Opacity;
-
-
     };
   }
 };
