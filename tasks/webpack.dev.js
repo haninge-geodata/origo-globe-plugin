@@ -30,15 +30,12 @@ module.exports = merge(common, {
   devServer: {
     static: './',
     port: 9009,
+    hot: false,
     devMiddleware: {
       writeToDisk: true
     }
   },
   plugins: [
-    new CleanWebpackPlugin(),
-    new WriteFilePlugin({
-      test: /^(?!.*(hot)).*/,
-    }),
     new CopyWebpackPlugin({
       patterns: [
         { from: path.join(cesiumSource, cesiumWorkers), to: `${__dirname}/../../origo/plugins/globe/cesiumassets/Workers` },
