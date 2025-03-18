@@ -21,10 +21,10 @@ import {
   JulianDate
 } from 'cesium';
 import isGlobeActive from './isglobeactive';
+import { threedtile } from './layer/layerhelper';
 import addGLTF from './layer/gltf';
 import add3DTile from './layer/threedtile';
-import { threedtile } from './layer/layerhelper';
-import getFeatureInfo from './featureinfo'
+import getFeatureInfo from './featureinfo';
 
 window.Cesium = Cesium;
 
@@ -395,7 +395,6 @@ const Globe = function Globe(options = {}) {
 
       helpers.activeGlobeOnStart();
       this.dispatch('render');
-
     },
     isGlobeActive() {
       return isGlobeActive(oGlobe);

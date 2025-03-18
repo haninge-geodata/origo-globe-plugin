@@ -21,6 +21,7 @@
   <script src="js/origo.js"></script>
   <script src="plugins/globe/globe.js"></script>
   <script type="text/javascript">
+    window.Origo.layerType.THREEDTILE = window.Globe().threedtiletype();
     //Init origo
     var origo = Origo('index.json');
     origo.on('load', function (viewer) {

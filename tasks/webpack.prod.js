@@ -52,7 +52,6 @@ module.exports = merge(common, {
     }]
   },
   plugins: [
-    new webpack.optimize.AggressiveMergingPlugin(),
     new MiniCssExtractPlugin({
       filename: '../build/globe.css'
     }),

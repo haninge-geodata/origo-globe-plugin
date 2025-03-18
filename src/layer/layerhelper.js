@@ -1,6 +1,6 @@
 import Layer from "ol/layer/Layer";
 import Source from "ol/source/Source";
-import LayerProperty from "ol/layer/Property.js";
+import LayerProperty from "ol/layer/Property";
 import {
   Cesium3DTileStyle
 } from 'cesium';
