@@ -1,5 +1,6 @@
 import Origo from 'Origo';
 import proj4 from 'proj4';
+import * as Cesium from 'cesium';
 
 // Use featureInfo in globe mode
 export default (scene, viewer, map, featureInfo, flyTo) => {
@@ -31,16 +32,16 @@ export default (scene, viewer, map, featureInfo, flyTo) => {
       const allLayers = map.getAllLayers();
       for (const layer of allLayers) {
         if (layer instanceof Origo.ol.layer.Image && layer.isVisible(map.getView()) && layer.getProperties().queryable) {
-          const showFeatureInfoData = { 'title': layer.get('title'), 'layerName': layer.get('name'), 'layer': layer }
+          const showFeatureInfoData = { title: layer.get('title'), layerName: layer.get('name'), layer };
           if (viewer.getProjectionCode() === 'EPSG:3857') {
             coordinate = proj4('EPSG:4326', 'EPSG:3857', [lon, lat]);
           }
-          const featureInfoUrl = layer.getSource().getFeatureInfoUrl(coordinate, map.getView().getResolution(), viewer.getProjectionCode(), { INFO_FORMAT: 'application/json' })
+          const featureInfoUrl = layer.getSource().getFeatureInfoUrl(coordinate, map.getView().getResolution(), viewer.getProjectionCode(), { INFO_FORMAT: 'application/json' });
           if (featureInfoUrl) {
             fetch(featureInfoUrl)
               .then((response) => response.text())
               .then((feature) => {
-                featureInfo.showFeatureInfo({ ...showFeatureInfoData, 'feature': new Origo.ol.format.GeoJSON().readFeatures(feature) })
+                featureInfo.showFeatureInfo({ ...showFeatureInfoData, feature: new Origo.ol.format.GeoJSON().readFeatures(feature) });
               });
           }
         }
@@ -49,8 +50,8 @@ export default (scene, viewer, map, featureInfo, flyTo) => {
     const orientation = {
       heading: Cesium.Math.toRadians(0.0),
       pitch: Cesium.Math.toRadians(-20.0),
-      roll: 0.0,
-    }
+      roll: 0.0
+    };
 
     if (Cesium.defined(feature) && feature instanceof Cesium.Cesium3DTileFeature) {
       const layerName = feature.primitive.OrigoLayerName;
@@ -75,11 +76,11 @@ export default (scene, viewer, map, featureInfo, flyTo) => {
       obj3D.title = `${title}`;
       obj3D.layerName = layerName;
       obj3D.layer = new Layer({
-        "": `${contentItems.join(' ')}</ul>`
+        '': `${contentItems.join(' ')}</ul>`
       });
       obj3D.feature = new Feature({
         geometry: new Point(coordinate),
-        "": `${contentItems.join(' ')}</ul>`
+        '': `${contentItems.join(' ')}</ul>`
       });
       featureInfo.showFeatureInfo(obj3D);
     } else if (!Cesium.defined(feature)) {
@@ -95,7 +96,7 @@ export default (scene, viewer, map, featureInfo, flyTo) => {
 
       featureInfo.showFeatureInfo(obj2D);
       // featureInfo.render([obj], 'overlay', coordinate);
-    };
+    }
     featureInfo.clear();
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 };

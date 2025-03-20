@@ -29,7 +29,7 @@ export default async (scene, url, lat, lng, height, heightRef, animation) => {
         position,
         headingPositionRoll,
         Ellipsoid.WGS84,
-        fixedFrameTransform,
+        fixedFrameTransform
       ),
       heightReference,
       scene,
@@ -44,8 +44,8 @@ export default async (scene, url, lat, lng, height, heightRef, animation) => {
       model.readyEvent.addEventListener(() => {
         model.activeAnimations.add({
           index: animations.length - 1,
-     loop: ModelAnimationLoop.REPEAT,
-     multiplier: 0.5,
+          loop: ModelAnimationLoop.REPEAT,
+          multiplier: 0.5
         });
       });
     }

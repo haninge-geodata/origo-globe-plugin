@@ -60,6 +60,9 @@ const Globe = function Globe(options = {}) {
   let scene;
   let htmlString;
   let el;
+  let heading;
+  let pitch;
+  let roll;
 
   const buttons = [];
 
@@ -353,9 +356,13 @@ const Globe = function Globe(options = {}) {
       flatpickrButton = Origo.ui.Button({
         cls: 'padding-small margin-bottom-smaller icon-smaller round light box-shadow hidden',
         click() {
-          let toggleFlatpickrButtonEl = document.getElementById(flatpickrButton.getId());
+          const toggleFlatpickrButtonEl = document.getElementById(flatpickrButton.getId());
           toggleFlatpickrButtonEl.classList.toggle('active');
-          toggleFlatpickrButtonEl.classList.contains('active') ? fp.open() : fp.close();
+          if (toggleFlatpickrButtonEl.classList.contains('active')) {
+            fp.open();
+          } else {
+            fp.close();
+          }
         },
         icon: '#ic_clock-time-four_24px',
         tooltipText: 'Datetime picker',
@@ -366,9 +373,9 @@ const Globe = function Globe(options = {}) {
       toggleShadowsButton = Origo.ui.Button({
         cls: 'padding-small margin-bottom-smaller icon-smaller round light box-shadow hidden',
         click() {
-          let toggleShadowsButtonEl = document.getElementById(toggleShadowsButton.getId());
+          const toggleShadowsButtonEl = document.getElementById(toggleShadowsButton.getId());
           toggleShadowsButtonEl.classList.toggle('active');
-          toggleShadowsButtonEl.classList.contains('active') ? scene.shadowMap.enabled = true : scene.shadowMap.enabled = false;
+          scene.shadowMap.enabled = toggleShadowsButtonEl.classList.contains('active');
         },
         icon: '#ic_box-shadow_24px',
         tooltipText: 'Toggle shadows',
@@ -406,7 +413,7 @@ const Globe = function Globe(options = {}) {
       return addGLTF;
     },
     globalOLCesium() {
-      return OLCesium
+      return OLCesium;
     }
   });
 };
