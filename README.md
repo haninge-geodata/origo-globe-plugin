@@ -4,12 +4,9 @@ A plugin for [Origo map](https://github.com/origo-map/origo) to enable [CesiumJS
 ![Söderstadion](data/soderstadion.png "Söderstadion")
 
 ## Setup
-See index_example.html and index_example.json to get you started
+See index_example.html and index_example.json to get you started.
 
-[!NOTE]
-Due to loading issues ol-cesium needs to be loaded from Origo-map
-
-In [origo.js](https://github.com/origo-map/origo/blob/master/origo.js) do
+Due to loading issues ol-cesium needs to be loaded from Origo-map. In [origo.js](https://github.com/origo-map/origo/blob/master/origo.js) do
 
 ```
 import OLCesium from 'olcs/OLCesium';
