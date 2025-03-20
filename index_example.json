@@ -140,6 +140,7 @@
       }
     ],
     "layers": [
+      // OSM Buildings needs Ion token
       {
         "name": "osm-buildings",
         "title": "OSM Byggnader",
