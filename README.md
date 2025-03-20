@@ -20,4 +20,4 @@ import OLCesium from 'olcs/OLCesium';
 window.OLCesium = OLCesium;
 ```
 
-Copy files in buildfolder and put in Origo, plugins/globe folder.
+Copy files in build folder and put in Origo, plugins/globe folder.
