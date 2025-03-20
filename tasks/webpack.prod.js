@@ -3,8 +3,8 @@ const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const common = require('./webpack.common');
-
 
 const cesiumSource = 'node_modules/cesium/Source';
 const cesiumWorkers = '../Build/Cesium/Workers';
@@ -12,7 +12,12 @@ const cesiumWorkers = '../Build/Cesium/Workers';
 module.exports = merge(common, {
   optimization: {
     nodeEnv: 'production',
-    minimize: true
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        extractComments: false
+      })
+    ]
   },
   performance: {
     hints: false

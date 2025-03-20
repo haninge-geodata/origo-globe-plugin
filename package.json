@@ -16,10 +16,10 @@
   "scripts": {
     "start": "npm run prebuild-sass | run-p watch-js watch-sass",
     "watch-js": "webpack-dev-server --config ./tasks/webpack.dev.js --mode development",
-    "watch-sass": "node-sass -w --include-path scss scss/globe.scss ../origo/plugins/globe/globe.css",
-    "prebuild-sass": "node-sass --include-path scss scss/globe.scss ../origo/plugins/globe/globe.css",
+    "watch-sass": "sass -w --load-path scss --load-path . scss/globe.scss ../origo/plugins/globe/globe.css",
+    "prebuild-sass": "sass --load-path scss --load-path . scss/globe.scss ../origo/plugins/globe/globe.css",
     "build": "webpack --config ./tasks/webpack.prod.js && npm run build-sass",
-    "build-sass": "node-sass --include-path scss scss/globe.scss build/globe.css"
+    "build-sass": "sass --load-path scss --load-path . scss/globe.scss build/globe.css"
   },
   "dependencies": {
     "cesium": "^1.113.0",
@@ -33,14 +33,15 @@
     "compression-webpack-plugin": "^10.0.0",
     "copy-webpack-plugin": "^9.1.0",
     "css-loader": "^6.8.1",
-    "eslint": "^9.7.0",
+    "eslint": "^8.56.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-import": "^2.29.1",
     "mini-css-extract-plugin": "^2.6.1",
-    "node-sass": "^9.0.0",
     "npm-run-all": "^4.1.5",
+    "sass-embedded": "^1.82.0",
     "sass-loader": "^13.3.2",
     "style-loader": "^3.3.3",
+    "terser-webpack-plugin": "^5.3.14",
     "webpack": "^5.74.0",
     "webpack-bundle-analyzer": "^4.6.1",
     "webpack-cli": "^4.10.0",
