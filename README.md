@@ -4,9 +4,11 @@ A plugin for [Origo map](https://github.com/origo-map/origo) to enable [CesiumJS
 ![Söderstadion](data/soderstadion.png "Söderstadion")
 
 ## Setup
-See [index_example.html](https://github.com/haninge-geodata/origo-globe-plugin/blob/main/index_example.html) and [index_example.json](https://github.com/haninge-geodata/origo-globe-plugin/blob/main/index_example.json) to get you started.
+See [index_example.html](https://github.com/haninge-geodata/origo-globe-plugin/blob/main/index_example.html) and [index_example.json](https://github.com/haninge-geodata/origo-globe-plugin/blob/main/index_example.json) to get you started with configuration.
 
-Due to loading issues ol-cesium needs to be loaded from Origo-map.
+Copy files in build folder and put in Origos, plugins/globe folder.
+
+ℹ️ Due to loading issues ol-cesium needs to be loaded from Origo-map.
 
 Install ol-cesium
 ```
@@ -19,5 +21,3 @@ import OLCesium from 'olcs/OLCesium';
 
 window.OLCesium = OLCesium;
 ```
-
-Copy files in build folder and put in Origo, plugins/globe folder.
